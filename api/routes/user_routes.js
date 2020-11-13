@@ -28,10 +28,6 @@ router.route('/users/login')
     const jwt_token = jwt.create(options, key);
     jwt_token.setExpiration(new Date().getTime() + 86400 * 1000);
     res.send(jwt_token);
-    // res.json({
-    //   message: "Login",
-    //   method: req.method
-    // });
   })
 
 router.route('/users/auth/:provider')
