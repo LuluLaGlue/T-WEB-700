@@ -3,7 +3,10 @@ var jwt = require('njwt');
 const { send } = require('process');
 var crypto = require('crypto');
 var secureRandom = require('secure-random');
+const settings = require('../const.js');
+const { MongoClient } = require('mongodb');
 var router = express.Router();
+const client = new MongoClient(settings.api_url);
 
 router.route('/users/register')
   .post(function (req, res) {
@@ -17,6 +20,7 @@ router.route('/users/login')
   .post(function (req, res) {
     const email = req.body.email;
     const passwd = crypto.createHash('md5').update(req.body.password).digest("hex");
+    await client.connect();
 
     // Check if user exists and if yes if credentials are ok
 
@@ -27,7 +31,7 @@ router.route('/users/login')
     }
     const jwt_token = jwt.create(options, key);
     jwt_token.setExpiration(new Date().getTime() + 86400 * 1000);
-    res.send(jwt_token);
+    res.send(jwt_token.compact());
   })
 
 router.route('/users/auth/:provider')
