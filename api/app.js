@@ -13,6 +13,7 @@ const users = require("./routes/user_routes");
 const PORT = 3000;
 
 const app = express();
+process.env['USER_ID'] === "undefined"
 
 // Middleware
 app.use(cors());

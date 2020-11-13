@@ -10,7 +10,7 @@ const User = require("../models/user");
 const user = require('../models/user');
 
 router.post("/register", (req, res) => {
-  if (process.env['USER_ID'] !== "undefined") {
+  if (process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) {
     return res
       .status(401)
       .json({ message: "unauthorized", error: "user must not be logged in" });
@@ -66,7 +66,7 @@ router.post("/register", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  if (process.env['USER_ID'] !== "undefined") {
+  if (process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) {
     return res
       .status(401)
       .json({ message: "unauthorized", error: "user must not be logged in" });
@@ -103,7 +103,7 @@ router.post("/login", (req, res) => {
         jwt.sign(
           payload,
           keys.secretOrKey, {
-          expiresIn: 31556926 // 1 year in seconds
+          expiresIn: 604800 // 1 week in seconds
         },
           (err, token) => {
             res.json({
@@ -125,7 +125,7 @@ router.post("/login", (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  if (process.env['USER_ID'] === "undefined") {
+  if (process.env['USER_ID'] === "undefined" || process.env['USER_ID'] === undefined) {
     return res
       .status(401)
       .json({ message: "unauthorized", error: "user must be logged in" });
@@ -147,7 +147,7 @@ router.post('/logout', (req, res) => {
 })
 
 router.get('/profile', (req, res) => {
-  if (process.env['USER_ID'] === "undefined") {
+  if (process.env['USER_ID'] === "undefined" || process.env['USER_ID'] === undefined) {
     return res
       .status(401)
       .json({ message: "unauthorized", error: "user must be logged in" });
@@ -173,7 +173,7 @@ router.get('/profile', (req, res) => {
 })
 
 router.put('/profile', (req, res) => {
-  if (process.env['USER_ID'] === "undefined") {
+  if (process.env['USER_ID'] === "undefined" || process.env['USER_ID'] === undefined) {
     return res
       .status(401)
       .json({ message: "unauthorized", error: "user must be logged in" });
@@ -232,6 +232,37 @@ router.put('/profile', (req, res) => {
     }
   })
 
+})
+
+router.delete('/delete', (req, res) => {
+  if (process.env['USER_ID'] === "undefined" || process.env['USER_ID'] === undefined) {
+    return res
+      .status(401)
+      .json({ message: "unauthorized", error: "user must be logged in" });
+  }
+  const token = req.header("authorization");
+  if (token === undefined) {
+    return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+  }
+  let verifiedJwt = '';
+  try {
+    verifiedJwt = jwt.verify(token, keys.secretOrKey);
+  } catch (e) {
+    console.log(e)
+    return res.json(e)
+  }
+  if (verifiedJwt.role !== "admin") {
+    return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+  }
+  User.findOne({
+    _id: req.body.id
+  }).then(user => {
+    user.deleteOne();
+    return res.status(200).json({ message: "User has been deleted" })
+  }).catch(err => {
+    console.log(err);
+    return res.json(err)
+  })
 })
 
 router.route('/users/auth/:provider')
