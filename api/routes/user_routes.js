@@ -7,7 +7,6 @@ const keys = require('../config/keys.js');
 const validateRegisterInput = require("../validation/register");
 const validateLoginInput = require("../validation/login");
 const User = require("../models/user");
-const user = require('../models/user');
 
 router.post("/register", (req, res) => {
   if (process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) {
