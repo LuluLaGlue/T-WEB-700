@@ -7,9 +7,13 @@ const keys = require('../config/keys.js');
 const validateRegisterInput = require("../validation/register");
 const validateLoginInput = require("../validation/login");
 const User = require("../models/user");
-const user = require('../models/user');
 
 router.post("/register", (req, res) => {
+  if (process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) {
+    return res
+      .status(401)
+      .json({ message: "unauthorized", error: "user must not be logged in" });
+  }
   const {
     errors,
     isValid
@@ -30,7 +34,7 @@ router.post("/register", (req, res) => {
       const newUser = new User({
         email: req.body.email,
         password: req.body.password,
-        username: req.body.username || req.body.email,
+        username: req.body.username || Math.random(),
         role: req.body.role || "user"
       });
 
@@ -42,7 +46,18 @@ router.post("/register", (req, res) => {
           newUser
             .save()
             .then(user => { let tmp = user; tmp.username = undefined; res.json(tmp) })
-            .catch(err => console.log(err));
+            .catch(err => {
+              if (err.code === 11000) {
+                let values = '';
+                for (let key in err.keyValue) {
+                  values += err.keyValue[key] + ','
+                }
+                values = values.slice(0, -1);
+                res.json({ error: values + " is already taken" })
+              } else {
+                res.json({ error: err.message })
+              }
+            });
         });
       });
     }
@@ -50,6 +65,11 @@ router.post("/register", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
+  if (process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) {
+    return res
+      .status(401)
+      .json({ message: "unauthorized", error: "user must not be logged in" });
+  }
   const {
     errors,
     isValid
@@ -82,7 +102,7 @@ router.post("/login", (req, res) => {
         jwt.sign(
           payload,
           keys.secretOrKey, {
-          expiresIn: 31556926 // 1 year in seconds
+          expiresIn: 604800 // 1 week in seconds
         },
           (err, token) => {
             res.json({
@@ -103,8 +123,8 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.get('/profile', (req, res) => {
-  if (!process.env['USER_ID']) {
+router.post('/logout', (req, res) => {
+  if (process.env['USER_ID'] === "undefined" || process.env['USER_ID'] === undefined) {
     return res
       .status(401)
       .json({ message: "unauthorized", error: "user must be logged in" });
@@ -114,7 +134,34 @@ router.get('/profile', (req, res) => {
     return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
   }
 
-  const verifiedJwt = jwt.verify(token, keys.secretOrKey);
+  try {
+    jwt.verify(token, keys.secretOrKey);
+  } catch (e) {
+    console.log(e)
+    return res.json(e)
+  }
+  process.env['USER_ID'] = undefined;
+  return res.json({ message: "logged out" })
+
+})
+
+router.get('/profile', (req, res) => {
+  if (process.env['USER_ID'] === "undefined" || process.env['USER_ID'] === undefined) {
+    return res
+      .status(401)
+      .json({ message: "unauthorized", error: "user must be logged in" });
+  }
+  const token = req.header("authorization");
+  if (token === undefined) {
+    return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+  }
+  let verifiedJwt = '';
+  try {
+    verifiedJwt = jwt.verify(token, keys.secretOrKey);
+  } catch (e) {
+    console.log(e)
+    return res.json(e)
+  }
   User.findOne({
     _id: verifiedJwt.id
   }).then(user => {
@@ -125,7 +172,96 @@ router.get('/profile', (req, res) => {
 })
 
 router.put('/profile', (req, res) => {
-  return res.status(200).json({ message: "ok" })
+  if (process.env['USER_ID'] === "undefined" || process.env['USER_ID'] === undefined) {
+    return res
+      .status(401)
+      .json({ message: "unauthorized", error: "user must be logged in" });
+  }
+  const token = req.header("authorization");
+  if (token === undefined) {
+    return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+  }
+  let verifiedJwt = '';
+  try {
+    verifiedJwt = jwt.verify(token, keys.secretOrKey);
+  } catch (e) {
+    console.log(e)
+    return res.json(e)
+  }
+  User.findOne({
+    _id: verifiedJwt.id
+  }).then(user => {
+    if (req.body.password) {
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(req.body.password, salt, (err, hash) => {
+          if (err) throw err;
+          user.password = hash;
+          let body_tmp = req.body;
+          body_tmp.password = undefined;
+          for (let tmp in body_tmp) {
+            user[tmp] = body_tmp[tmp];
+          }
+          user.password = hash
+          user
+            .save()
+            .then(user => { let tmp = user; tmp.username = undefined; res.json(tmp) })
+            .catch(err => {
+              if (err.code === 11000) {
+                let values = '';
+                for (let key in err.keyValue) {
+                  values += err.keyValue[key] + ','
+                }
+                values = values.slice(0, -1);
+                res.json({ error: values + " is already taken" })
+              } else {
+                res.json({ error: err.message })
+              }
+            });
+        });
+      });
+    } else {
+      for (let tmp in req.body) {
+        user[tmp] = req.body[tmp];
+      }
+
+      user
+        .save()
+        .then(user => { let tmp = user; tmp.username = undefined; res.json(tmp) })
+        .catch(err => console.log(err));
+    }
+  })
+
+})
+
+router.delete('/delete', (req, res) => {
+  if (process.env['USER_ID'] === "undefined" || process.env['USER_ID'] === undefined) {
+    return res
+      .status(401)
+      .json({ message: "unauthorized", error: "user must be logged in" });
+  }
+  const token = req.header("authorization");
+  if (token === undefined) {
+    return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+  }
+  let verifiedJwt = '';
+  try {
+    verifiedJwt = jwt.verify(token, keys.secretOrKey);
+  } catch (e) {
+    console.log(e)
+    return res.json(e)
+  }
+  if (verifiedJwt.role !== "admin") {
+    return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+  }
+  User.findOne({
+    _id: req.body.id
+  }).then(user => {
+    user.deleteOne();
+    return res.status(200).json({ message: "User has been deleted" })
+  }).catch(err => {
+    console.log(err);
+    return res.json(err)
+  })
 })
 
 router.route('/users/auth/:provider')
@@ -150,31 +286,6 @@ router.route('/users/auth/:provider/callback')
       message: "Getting info from " + req.params.provider,
       method: req.method
     });
-  })
-
-router.route('/users/logout')
-  .post(function (req, res) {
-    if (!process.env['USER_ID']) {
-      res.status(401).send(response(401, { message: "unauthorized", error: "user must be logged in" }))
-      return 401
-    }
-    const token = req.header("authorization")
-    if (token === undefined) {
-      res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
-      return 401;
-    }
-    jwt.verify(token, settings.keysign, function (err, verifiedJwt) {
-      if (err) {
-        res.status(401).send(response(401, { message: "unauthorized", error: err.message }))
-        return 401;
-      } else {
-        process.env['USER_ID'] = undefined;
-        res.send(response(200, {
-          message: "Logged out",
-        }));
-        //Get info from user with id = verifiedJwt.body.user_id
-      }
-    })
   })
 
 module.exports = router
