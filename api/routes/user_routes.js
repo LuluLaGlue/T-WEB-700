@@ -290,9 +290,7 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-router.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/error' }),
@@ -301,8 +299,6 @@ router.get('/auth/google/callback',
       email: userProfile.emails[0].value
     }).then((usr) => {
       if (usr) {
-        let tmp = usr;
-        tmp.username = undefined;
         const payload = {
           id: usr.id,
           role: usr.role
