@@ -29,21 +29,31 @@ router.get('/articles', (req, res) => {
           return res.json(e)
         }
         let params = req.query.params.toLowerCase().split(',');
-
+        articles.sort(function (a, b) { return new Date(b.pubDate) - new Date(a.pubDate) })
         articles.map((value, index) => {
           value.guid = value.guid.replace(/[/]/g, '_')
           if (typeof value.category === "object") {
             value.category.map((value_b, index_b) => {
               params.map((value_t, index_t) => {
                 if (value_b.toLowerCase() === value_t) {
-                  response.push(value)
+                  response.push({
+                    id: value.guid,
+                    title: value.title,
+                    src: value.link,
+                    img: value['media:content']
+                  })
                 }
               })
             })
           } else {
             params.map((value_t, index_t) => {
               if (value.category.toLowerCase() === value_t) {
-                response.push(value)
+                response.push({
+                  id: value.guid,
+                  title: value.title,
+                  src: value.link,
+                  img: value['media:content']
+                })
               }
             })
           }
@@ -51,10 +61,18 @@ router.get('/articles', (req, res) => {
         const set = [... new Set(response)]
         res.json(set)
       } else {
+        let response = [];
+        articles.sort(function (a, b) { return new Date(b.pubDate) - new Date(a.pubDate) })
         articles.map((value, index) => {
           articles[index].guid = value.guid.replace(/[/]/g, '_')
+          response.push({
+            id: value.guid,
+            title: value.title,
+            src: value.link,
+            img: value['media:content']
+          })
         })
-        res.json(articles)
+        res.json(response)
       }
     })
     .catch(err => {
@@ -68,10 +86,20 @@ router.get('/articles/:id', (req, res) => {
     .then(str => {
       const data = parser.parse(str)
       let articles = data.rss.channel.item;
+      let response = {};
       articles.map((value, index) => {
         value.guid = value.guid.replace(/[/]/g, '_')
         if (value.guid === req.params.id) {
-          res.json(value)
+          response = {
+            id: value.guid,
+            title: value.title,
+            description: value.description,
+            creator: value['dc:creator'],
+            src: value.link,
+            date: value.pubDate,
+            img: value['media:content']
+          }
+          res.json(response)
         }
       })
     })
