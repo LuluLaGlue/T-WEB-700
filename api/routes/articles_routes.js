@@ -17,7 +17,6 @@ router.get('/articles', (req, res) => {
       let articles = data.rss.channel.item
       let response = [];
       if (req.query.params && req.header("authorization") && process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) { //if the user is not logged in the query will not take into account the params
-        console.log('COUOCU')
         const token = req.header("authorization");
         if (token === undefined) {
           return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
