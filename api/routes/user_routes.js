@@ -290,8 +290,15 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-router.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+router.get('/auth/google', (req, res) => {
+  if (process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) {
+    return res
+      .status(401)
+      .json({ message: "unauthorized", error: "user must not be logged in" });
+  }
+  passport.authenticate('google', { scope: ['profile', 'email'] }
+  )
+}
 );
 
 router.get('/auth/google/callback',
