@@ -1,4 +1,5 @@
 var express = require('express');
+const axios = require('axios');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
@@ -264,28 +265,33 @@ router.delete('/delete', (req, res) => {
   })
 })
 
-router.route('/users/auth/:provider')
-  .get(function (req, res) {
-    if (process.env['USER_ID']) {
-      res.status(401).send(response(401, { message: "unauthorized", error: "user can not be logged in" }))
-      return 401
-    }
-    res.json({
-      message: "Trying to login via " + req.params.provider,
-      method: req.method
-    });
-  })
+// router.get('/users/auth/:provider', (req, res) => {
+//   const clientID = '1031311114983-p6mgeb1isu5reba41dsskmdatio1jt4f.apps.googleusercontent.com';
+//   const secret = 'aRcKfvzem-_j3RfVNhzCBlA5'
+// })
 
-router.route('/users/auth/:provider/callback')
-  .get(function (req, res) {
-    if (process.env['USER_ID']) {
-      res.status(401).send(response(401, { message: "unauthorized", error: "user can not be logged in" }))
-      return 401
-    }
-    res.json({
-      message: "Getting info from " + req.params.provider,
-      method: req.method
-    });
-  })
+// router.route('/users/auth/:provider')
+//   .get(function (req, res) {
+//     if (process.env['USER_ID']) {
+//       res.status(401).send(response(401, { message: "unauthorized", error: "user can not be logged in" }))
+//       return 401
+//     }
+//     res.json({
+//       message: "Trying to login via " + req.params.provider,
+//       method: req.method
+//     });
+//   })
+
+// router.route('/users/auth/:provider/callback')
+//   .get(function (req, res) {
+//     if (process.env['USER_ID']) {
+//       res.status(401).send(response(401, { message: "unauthorized", error: "user can not be logged in" }))
+//       return 401
+//     }
+//     res.json({
+//       message: "Getting info from " + req.params.provider,
+//       method: req.method
+//     });
+//   })
 
 module.exports = router
