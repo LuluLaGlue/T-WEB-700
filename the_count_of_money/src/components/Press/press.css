@@ -1,0 +1,20 @@
+.title {
+  display: flex;
+  justify-content: center;
+  margin-top: 5%;
+  margin-bottom: 5%;
+  font-weight: bold;
+}
+
+.press-card {
+  width: 200px;
+}
+
+.press-container {
+  background-color: red;
+  padding: 20px;
+  width: 100%;
+}
+.CardDesk {
+  width: 100%;
+}
