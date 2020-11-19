@@ -1,13 +1,17 @@
 var express = require('express');
-const axios = require('axios');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const passport = require("passport");
 
 const keys = require('../config/keys.js');
 const validateRegisterInput = require("../validation/register");
 const validateLoginInput = require("../validation/login");
 const User = require("../models/user");
+
+const GOOGLE_CLIENT_ID = '1031311114983-p6mgeb1isu5reba41dsskmdatio1jt4f.apps.googleusercontent.com';
+const GOOGLE_CLIENT_SECRET = 'aRcKfvzem-_j3RfVNhzCBlA5';
 
 router.post("/register", (req, res) => {
   if (process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) {
@@ -265,33 +269,110 @@ router.delete('/delete', (req, res) => {
   })
 })
 
-// router.get('/users/auth/:provider', (req, res) => {
-//   const clientID = '1031311114983-p6mgeb1isu5reba41dsskmdatio1jt4f.apps.googleusercontent.com';
-//   const secret = 'aRcKfvzem-_j3RfVNhzCBlA5'
-// })
+router.get('/success', (req, res) => res.send(userProfile));
+router.get('/error', (req, res) => res.send("error logging in"));
+passport.serializeUser(function (user, cb) {
+  cb(null, user);
+});
 
-// router.route('/users/auth/:provider')
-//   .get(function (req, res) {
-//     if (process.env['USER_ID']) {
-//       res.status(401).send(response(401, { message: "unauthorized", error: "user can not be logged in" }))
-//       return 401
-//     }
-//     res.json({
-//       message: "Trying to login via " + req.params.provider,
-//       method: req.method
-//     });
-//   })
+passport.deserializeUser(function (obj, cb) {
+  cb(null, obj);
+});
 
-// router.route('/users/auth/:provider/callback')
-//   .get(function (req, res) {
-//     if (process.env['USER_ID']) {
-//       res.status(401).send(response(401, { message: "unauthorized", error: "user can not be logged in" }))
-//       return 401
-//     }
-//     res.json({
-//       message: "Getting info from " + req.params.provider,
-//       method: req.method
-//     });
-//   })
+passport.use(new GoogleStrategy({
+  clientID: GOOGLE_CLIENT_ID,
+  clientSecret: GOOGLE_CLIENT_SECRET,
+  callbackURL: "http://localhost:3000/users/auth/google/callback"
+},
+  function (accessToken, refreshToken, profile, done) {
+    userProfile = profile;
+    return done(null, userProfile);
+  }
+));
+
+router.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/error' }),
+  function (req, res) {
+    User.findOne({
+      email: userProfile.emails[0].value
+    }).then((usr) => {
+      if (usr) {
+        let tmp = usr;
+        tmp.username = undefined;
+        const payload = {
+          id: usr.id,
+          role: usr.role
+        };
+
+        jwt.sign(
+          payload,
+          keys.secretOrKey, {
+          expiresIn: 604800 // 1 week in seconds
+        },
+          (err, token) => {
+            res.json({
+              success: true,
+              token: "Bearer " + token
+            });
+          }
+        );
+        process.env['USER_ID'] = usr.id;
+      } else {
+        const newUser = new User({
+          email: userProfile.emails[0].value,
+          password: userProfile.id,
+          username: userProfile.displayName || Math.random(),
+          role: "user"
+        });
+
+        // Hash password before saving in database
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            newUser.password = hash;
+            newUser
+              .save()
+              .then(usr => {
+                let tmp = usr;
+                tmp.username = undefined;
+                const payload = {
+                  id: usr.id,
+                  role: usr.role
+                };
+
+                jwt.sign(
+                  payload,
+                  keys.secretOrKey, {
+                  expiresIn: 604800 // 1 week in seconds
+                },
+                  (err, token) => {
+                    res.json({
+                      success: true,
+                      token: "Bearer " + token
+                    });
+                  }
+                );
+                process.env['USER_ID'] = usr.id;
+              }).catch(err => {
+                if (err.code === 11000) {
+                  let values = '';
+                  for (let key in err.keyValue) {
+                    values += err.keyValue[key] + ','
+                  }
+                  values = values.slice(0, -1);
+                  res.json({ error: values + " is already taken" })
+                } else {
+                  res.json({ error: err.message })
+                }
+              });
+          });
+        });
+      }
+    })
+  });
 
 module.exports = router
