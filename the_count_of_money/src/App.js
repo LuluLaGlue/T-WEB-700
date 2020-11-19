@@ -19,7 +19,6 @@ import Settings from "./components/auth/settings.component";
 import PrivateRoute from "./components/private-route/privateRoute";
 import Dashboard from "./components/dashboard/dashboard";
 import Admin from "./components/admin/admin";
-import Press from "./components/Press/Press";
 
 import Navbar from "./components/shared/navbar.component";
 
@@ -55,7 +54,7 @@ class App extends Component {
               <Route exact path="/" component={Home} />
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
-              <Route exact path="/press" component={Press} />
+
               <Switch>
                 <PrivateRoute exact path="/dashboard" component={Dashboard} />
                 <PrivateRoute exact path="/settings" component={Settings} />
