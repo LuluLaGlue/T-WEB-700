@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 const passport = require("passport");
 
 var home_route = require("./routes/home_routes");
-var crypto_route = require("./routes/crypto_routes")
+var crypto_route = require("./routes/crypto_routes");
+const articles_route = require("./routes/articles_routes");
 const keys = require('./config/keys.js')
 const users = require("./routes/user_routes");
 
@@ -42,6 +43,7 @@ require("./config/passport")(passport);
 app.use("/users", users);
 app.use(home_route);
 app.use(crypto_route);
+app.use(articles_route);
 
 app.listen(PORT, function () {
   console.log("Server is running on Port: " + PORT);
