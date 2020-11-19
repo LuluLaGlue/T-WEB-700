@@ -3,14 +3,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const passport = require("passport");
+
 var home_route = require("./routes/home_routes");
 var crypto_route = require("./routes/crypto_routes")
 const keys = require('./config/keys.js')
-
 const users = require("./routes/user_routes");
 
-
+var userProfile;
 const PORT = 3000;
+
 
 const app = express();
 process.env['USER_ID'] === "undefined"
@@ -24,6 +25,7 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(passport.initialize());
+app.use(passport.session());
 
 // DB Config
 mongoose.connect(keys.api_url, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -36,7 +38,7 @@ connection.once('open', function () {
 // Passport config
 require("./config/passport")(passport);
 
-// Routes
+
 app.use("/users", users);
 app.use(home_route);
 app.use(crypto_route);
