@@ -23,6 +23,10 @@ const UserSchema = new Schema({
     type: String,
     default: "user"
   },
+  articles: {
+    type: Array,
+    default: []
+  },
   dark_mode: {
     type: Boolean,
     required: true,

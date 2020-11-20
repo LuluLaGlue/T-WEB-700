@@ -40,7 +40,8 @@ router.post("/register", (req, res) => {
         email: req.body.email,
         password: req.body.password,
         username: req.body.username || Math.random(),
-        role: req.body.role || "user"
+        role: req.body.role || "user",
+        articles: req.body.articles || []
       });
 
       // Hash password before saving in database
