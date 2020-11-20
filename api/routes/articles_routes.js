@@ -102,6 +102,33 @@ router.get('/articles/:id', (req, res) => {
           res.json(response)
         }
       })
+      if (response.id === undefined) {
+        res.status(404).json({ error: "Article not found" })
+      }
+    })
+    .catch(err => {
+      res.status(400).json(err)
+    })
+})
+
+router.get('/articles/list/categories', (req, res) => {
+  fetch('https://cointelegraph.com/rss')
+    .then(resp => resp.text())
+    .then(str => {
+      const data = parser.parse(str)
+      let articles = data.rss.channel.item
+      let response = [];
+      articles.map((value, index) => {
+        if (typeof value.category === 'object') {
+          value.category.map((value_c, index_c) => {
+            response.push(value_c)
+          })
+        } else if (value.category) {
+          response.push(value.category)
+        }
+      })
+      const set = [... new Set(response)]
+      res.json(set)
     })
     .catch(err => {
       res.status(400).json(err)
