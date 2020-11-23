@@ -13,7 +13,7 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: true
+    required: false
   },
   date: {
     type: Date,
@@ -22,6 +22,10 @@ const UserSchema = new Schema({
   role: {
     type: String,
     default: "user"
+  },
+  cryptos: {
+    type: [String],
+    default: []
   },
   dark_mode: {
     type: Boolean,

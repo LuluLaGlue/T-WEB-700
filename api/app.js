@@ -3,14 +3,20 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const passport = require("passport");
-var home_route = require("./routes/home_routes");
-var crypto_route = require("./routes/crypto_routes")
-const keys = require('./config/keys.js')
 
+const home_route = require("./routes/home_routes");
+
+const crypto_route = require("./routes/crypto_routes")
+const crypto_update = require('./config/cryptos.js');
+
+const keys = require('./config/keys.js')
 const users = require("./routes/user_routes");
 
+require('dotenv').config();
 
-const PORT = 3000;
+var userProfile;
+const PORT = 3100;
+
 
 const app = express();
 process.env['USER_ID'] === "undefined"
@@ -24,6 +30,7 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(passport.initialize());
+app.use(passport.session());
 
 // DB Config
 mongoose.connect(keys.api_url, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -36,10 +43,13 @@ connection.once('open', function () {
 // Passport config
 require("./config/passport")(passport);
 
-// Routes
+
 app.use("/users", users);
 app.use(home_route);
+
 app.use(crypto_route);
+crypto_update.refreshCryptoDB()
+crypto_update.refreshCryptoValues()
 
 app.listen(PORT, function () {
   console.log("Server is running on Port: " + PORT);
