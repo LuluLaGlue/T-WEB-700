@@ -22,6 +22,7 @@
     "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.0",
     "secure-random": "^1.1.2",
+    "socket.io": "^3.0.3",
     "validator": "^13.1.17"
   },
   "devDependencies": {},

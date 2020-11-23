@@ -32,9 +32,28 @@ router.route('/cryptos')
     }).then(crypto => {
       return res.status(200).json(crypto)
     })
+    .catch(err => {
+      console.log(err);
+      return res.json(err)
+    })
   })
 
   .post(async function (req, res) {
+
+    /*const token = req.header("authorization");
+    if (token === undefined) {
+      return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+    }
+    let verifiedJwt = '';
+    try {
+      verifiedJwt = jwt.verify(token, keys.secretOrKey);
+    } catch (e) {
+      console.log(e)
+      return res.json(e)
+    }
+    if (verifiedJwt.role !== "admin") {
+      return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+    }*/
 
     for(item in req.body.crypto_list){
       let obj = req.body.crypto_list[item]
@@ -58,6 +77,9 @@ router.route('/cryptos')
         crypto.price_change._30d = resp_tmp[0]['30d'].price_change
         crypto.save()
       })
+      .catch(err => {
+        console.log(err);
+      })
     }
 
     res.json({
@@ -69,23 +91,91 @@ router.route('/cryptos')
 
 router.route('/cryptos/:cmid')
   .get(function (req, res) {
-    res.json({
-      message: "Accessing cryptos n" + req.params.cmid,
-      method: req.method
+
+    /*console.log(req.header("authorization"))
+
+    const token = req.headers.authorization.split(' ')[1];
+    if (token === undefined) {
+      return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+    }
+    let verifiedJwt = '';
+    try {
+      verifiedJwt = jwt.verify(token, keys.secretOrKey);
+
+    } catch (e) {
+      console.log(e)
+      return res.json(e)
+    }*/
+
+    Crypto.findOne({
+      id: req.params.cmid
+    }).then(crypto => {
+      return res.status(200).json(crypto)
     })
+    .catch(err => {
+      console.log(err);
+      return res.json(err)
+    })
+
   })
+
   .delete(function (req, res) {
-    res.json({
-      message: "Deleting crypto n" + req.params.cmid,
-      method: req.method
+
+    /*const token = req.header("authorization");
+    if (token === undefined) {
+      return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+    }
+    let verifiedJwt = '';
+    try {
+      verifiedJwt = jwt.verify(token, keys.secretOrKey);
+    } catch (e) {
+      console.log(e)
+      return res.json(e)
+    }
+    if (verifiedJwt.role !== "admin") {
+      return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+    }*/
+
+    Crypto.findOne({
+      id: req.params.cmid
+    }).then(crypto => {
+      crypto.deleteOne();
+      return res.status(200).json({ message: "Crypto has been deleted" })
+    }).catch(err => {
+      console.log(err);
+      return res.json(err)
     })
   })
+
 router.route('/cryptos/:cmid/history/:period')
   .get(function (req, res) {
-    res.json({
-      message: "Get cryptos n" + req.params.cmid + " during the period " + req.params.period,
-      method: req.method
+
+    /*console.log(req.header("authorization"))
+
+    const token = req.headers.authorization.split(' ')[1];
+    if (token === undefined) {
+      return res.status(401).json({ message: "unauthorized", error: "token not valid" })
+    }
+    let verifiedJwt = '';
+    try {
+      verifiedJwt = jwt.verify(token, keys.secretOrKey);
+
+    } catch (e) {
+      console.log(e)
+      return res.json(e)
+    }*/
+
+    let period = "_"+req.params.period
+    Crypto.findOne({
+      id: req.params.cmid
+    }).then(crypto => {
+      return res.status(200).json(crypto.price_change[period])
     })
+    .catch(err => {
+      console.log(err);
+      return res.json(err)
+    })
+
   })
 
 module.exports = router
