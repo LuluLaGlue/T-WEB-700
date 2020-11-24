@@ -1,0 +1,29 @@
+version: '3'
+
+services: 
+  server:
+    build: ./api
+    expose:
+      - 3000
+    environment: 
+      API_HOST: localhost
+      APP_SEVER_PORT: 3000
+    ports:
+      - 3000:3000
+    volumes: 
+      - ./api:/srv/app/api/src
+    command: npm run dev
+  the_count_of_money:
+    build: ./the_count_of_money
+    environment: 
+      - REACT_APP_PORT=8000
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    volumes: 
+      - ./the_count_of_money/src:/app/directory/path/src
+      - ./the_count_of_money/public:/app/directory/path/public
+    links:
+      - server
+    command: npm start
