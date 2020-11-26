@@ -23,8 +23,13 @@ const UserSchema = new Schema({
     type: String,
     default: "user"
   },
+<<<<<<< HEAD
   articles: {
     type: Array,
+=======
+  cryptos: {
+    type: [String],
+>>>>>>> crypto
     default: []
   },
   dark_mode: {

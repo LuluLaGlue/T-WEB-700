@@ -4,17 +4,29 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const passport = require("passport");
 
-var home_route = require("./routes/home_routes");
-var crypto_route = require("./routes/crypto_routes");
-const articles_route = require("./routes/articles_routes");
+const home_route = require("./routes/home_routes");
+
 const keys = require('./config/keys.js')
 const users = require("./routes/user_routes");
+const articles_route = require("./routes/articles_routes");
+
+require('dotenv').config();
 
 var userProfile;
-const PORT = 3000;
+const PORT = 3100;
+const SOCKET_PORT = 3101;
 
 
 const app = express();
+
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+    methods: ["GET", "POST"],
+  }
+});
+
 process.env['USER_ID'] === "undefined"
 
 // Middleware
@@ -42,9 +54,31 @@ require("./config/passport")(passport);
 
 app.use("/users", users);
 app.use(home_route);
-app.use(crypto_route);
 app.use(articles_route);
+
+
+const crypto_route = require("./routes/crypto_routes")
+const crypto_update = require('./config/cryptos.js');
+
+app.use(crypto_route);
+crypto_update.refreshCryptoDB();
+crypto_update.refreshCryptoValues();
 
 app.listen(PORT, function () {
   console.log("Server is running on Port: " + PORT);
 });
+
+server.listen(SOCKET_PORT, () => console.log(PORT + ' Server started'))
+
+io.on('connection', (socket) => {
+
+  socket.on('disconnect', () => {
+    console.log(socket.id + ' disconnected');
+  });
+
+  console.log(socket.id)
+  console.log('Client connected')
+
+  io.emit('chat message', 'Emit string data');
+
+})
