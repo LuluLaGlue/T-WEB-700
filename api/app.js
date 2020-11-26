@@ -8,12 +8,14 @@ const home_route = require("./routes/home_routes");
 
 const keys = require('./config/keys.js')
 const users = require("./routes/user_routes");
+const articles_route = require("./routes/articles_routes");
 
 require('dotenv').config();
 
 var userProfile;
 const PORT = 3100;
 const SOCKET_PORT = 3101;
+
 
 const app = express();
 
@@ -51,6 +53,7 @@ require("./config/passport")(passport);
 
 app.use("/users", users);
 app.use(home_route);
+app.use(articles_route);
 
 
 const crypto_route = require("./routes/crypto_routes")
@@ -64,12 +67,12 @@ app.listen(PORT, function () {
   console.log("Server is running on Port: " + PORT);
 });
 
-server.listen(SOCKET_PORT, () => console.log(PORT+' Server started'))
+server.listen(SOCKET_PORT, () => console.log(PORT + ' Server started'))
 
 io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
-    console.log(socket.id +' disconnected');
+    console.log(socket.id + ' disconnected');
   });
 
   console.log(socket.id)
