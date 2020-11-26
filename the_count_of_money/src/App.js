@@ -22,49 +22,49 @@ import Admin from "./components/admin/admin";
 
 import Navbar from "./components/shared/navbar.component";
 
-import './App.css';
+import "./App.css";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
-    // Set auth token header auth
-    const token = localStorage.jwtToken;
-    setAuthToken(token);
-    // Decode token and get user info and exp
-    const decoded = jwt_decode(token);
-    // Set user and isAuthenticated
-    store.dispatch(setCurrentUser(decoded));
-    // Check for expired token
-    const currentTime = Date.now() / 1000; // to get in milliseconds
-    if (decoded.exp < currentTime) {
-        // Logout user
-        store.dispatch(logoutUser());
-        // Redirect to login
-        window.location.href = "./login";
-    }
+  // Set auth token header auth
+  const token = localStorage.jwtToken;
+  setAuthToken(token);
+  // Decode token and get user info and exp
+  const decoded = jwt_decode(token);
+  // Set user and isAuthenticated
+  store.dispatch(setCurrentUser(decoded));
+  // Check for expired token
+  const currentTime = Date.now() / 1000; // to get in milliseconds
+  if (decoded.exp < currentTime) {
+    // Logout user
+    store.dispatch(logoutUser());
+    // Redirect to login
+    window.location.href = "./login";
+  }
 }
 
 class App extends Component {
-    render() {
-        return (
-            <Provider store={store}>
-              <Router>
-                <div className="Container">
-                  <Navbar />
-                  <div className="container">
-                    <Route exact path="/" component={Home} />
-                    <Route exact path="/register" component={Register} />
-                    <Route exact path="/login" component={Login} />
-                    <Switch>
-                      <PrivateRoute exact path="/dashboard" component={Dashboard} />
-                      <PrivateRoute exact path="/settings" component={Settings} />
-                      <PrivateRoute exact path="/admin" component={Admin} />
-                    </Switch>
-                  </div>
-                </div>
-              </Router>
-            </Provider>
-        );
-    }
+  render() {
+    return (
+      <Provider store={store}>
+        <Router>
+          <div className="Container">
+            <Navbar />
+            <div className="container">
+              <Route exact path="/" component={Home} />
+              <Route exact path="/register" component={Register} />
+              <Route exact path="/login" component={Login} />
+              <Switch>
+                <Route exact path="/dashboard" component={Dashboard} />
+                <PrivateRoute exact path="/settings" component={Settings} />
+                <PrivateRoute exact path="/admin" component={Admin} />
+              </Switch>
+            </div>
+          </div>
+        </Router>
+      </Provider>
+    );
+  }
 }
 
 export default App;
