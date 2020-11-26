@@ -7,14 +7,13 @@
 }
 
 .press-card {
-  width: 200px;
+  width: 400px;
+  margin: 10px;
 }
 
 .press-container {
-  background-color: red;
   padding: 20px;
-  width: 100%;
-}
-.CardDesk {
-  width: 100%;
+  width: 80%;
+  display: flex;
+  flex-wrap: wrap;
 }
