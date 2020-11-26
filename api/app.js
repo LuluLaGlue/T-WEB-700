@@ -80,5 +80,4 @@ io.on('connection', (socket) => {
   console.log('Client connected')
 
   io.emit('chat message', 'Emit string data');
-
 })
