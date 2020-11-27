@@ -1,16 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useState } from "react";
 import UpdateProfile from "../dashboard/UpdateProfile";
 import { Button, Tab, Tabs } from "react-bootstrap";
-import Dashboard from "../dashboard/dashboard";
-import Home from "../core/home";
 
 const Navbar = () => {
   let isLogged = true;
   let name = "toto";
   const [modalShow, setModalShow] = useState(false);
-  const [key, setKey] = useState("home");
+  const [key, setKey] = useState("money");
+  const history = useHistory();
+
+  const handleSelect = (route) => {
+    setKey(route);
+    history.push(route);
+  };
 
   return (
     <>
@@ -55,14 +59,12 @@ const Navbar = () => {
       <Tabs
         id="controlled-tab-example"
         activeKey={key}
-        onSelect={(k) => setKey(k)}
+        onSelect={(k) => {
+          handleSelect(k);
+        }}
       >
-        <Tab eventKey="home" title="Home">
-          <Dashboard />
-        </Tab>
-        <Tab eventKey="profile" title="Profile">
-          <Home />
-        </Tab>
+        <Tab eventKey="/" title="Course of money"></Tab>
+        <Tab eventKey={"/press"} title="Press"></Tab>
       </Tabs>
     </>
   );
