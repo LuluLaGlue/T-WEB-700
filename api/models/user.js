@@ -3,39 +3,27 @@ const Schema = mongoose.Schema;
 
 
 const UserSchema = new Schema({
-  email: {
-    type: String,
-    required: true
-  },
-  username: {
-    type: String,
-    default: "username"
-  },
-  password: {
-    type: String,
-    required: false
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
-  role: {
-    type: String,
-    default: "user"
-  },
-  articles: {
-    type: Array,
-    default: []
-  },
-  cryptos: {
-    type: [String],
-    default: []
-  },
-  dark_mode: {
-    type: Boolean,
-    required: true,
-    default: false
-  }
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    is_admin: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
 });
 
 

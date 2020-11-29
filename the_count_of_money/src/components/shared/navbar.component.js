@@ -70,4 +70,12 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+const mapStateToProps = state => ({
+    auth: state.auth
+});
+
+export default connect(
+    mapStateToProps, {
+        logoutUser
+    }
+)(Navbar);
