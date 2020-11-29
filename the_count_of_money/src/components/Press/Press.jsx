@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-//import { useHistory } from "react-router-dom";
 import { Card, Button } from "react-bootstrap";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
 import "./press.css";
 
 const Press = () => {
@@ -25,38 +26,69 @@ const Press = () => {
         "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsam mollitia voluptas, quo iusto similique",
     },
   ]);
-  const [tag, setTag] = useState();
+
   const config = {
     headers: {
       Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjc3NmMyMjI1MmYwNGQwMGQwMGM0ZCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjA1ODU5NTY0LCJleHAiOjE2MDY0NjQzNjR9.VXAvnrf9GSQUhcZ39WARbMrj4CeBHlzp82c-x-nfBMg`,
     },
   };
+  const [tag, setTag] = useState([]);
 
   useEffect(() => {
     const fetchdata = async () =>
       await axios
-        .get("http://localhost:3000/articles?params=bitcoin", config)
+        .get("http://localhost:3100/articles?params=", config)
         .then((res) => {
           console.log("res", res.data);
           setData(res.data);
-          console.log("data", data);
         });
-    const getKeyWord = async () =>
-      await axios.get(`http://localhost:3000/articles/list/categories`, config)
-        .then;
+    const getTag = async () =>
+      await axios
+        .get(`http://localhost:3100/articles/list/categories`, config)
+        .then((result) => {
+          console.log("result", result);
+          setTag(result.data);
+        });
     fetchdata();
-    getKeyWord();
+    getTag();
   }, []);
 
+  const getPressByTag = async () => {
+    await axios
+      .get(`http://localhost:3100/articles?params=${tag}`, config)
+      .then((res) => {
+        console.log("res", res.data);
+        setTag(res.data);
+      });
+  };
+
+  const animatedComponents = makeAnimated();
+  console.log("tag", tag);
   return (
     <>
       <h2 className="title">What's new ?</h2>
 
       <div>
-        Search with key word :<input>{tag}</input>
-        <Button onClick={setTag} variant="info">
-          Valider
-        </Button>
+        Search by key word :
+        <div>
+          <select multiple className="custom-select" data-live-search="true">
+            {tag.map((data) => {
+              return <option key={data}>{data}</option>;
+            })}
+          </select>
+          <Select
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            isMulti
+            options={tag.map((data) => {
+              console.log("data", data);
+              return { data };
+            })}
+          />
+          <Button onClick={getPressByTag} variant="info">
+            Valider
+          </Button>
+        </div>
       </div>
 
       <div className="d-flex justify-content-center">
@@ -67,7 +99,11 @@ const Press = () => {
                 <Card.Body>
                   <Card.Img variant="top" src={data.img} />
                   <Card.Title>{data.title}</Card.Title>
-                  <Card.Text>{data.src}</Card.Text>
+                  <Card.Text>
+                    <a href={data.src} target="_blank" rel="noreferrer">
+                      {data.src}
+                    </a>
+                  </Card.Text>
                 </Card.Body>
               </Card>
             );
