@@ -2,34 +2,34 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 
-export default class AddLocation extends Component {
+export default class AddCrypto extends Component {
 
     constructor(props) {
         super(props);
 
-        this.onChangeLocationName = this.onChangeLocationName.bind(this);
+        this.onChangeCryptoName = this.onChangeCryptoName.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
-            location_name: '',
+            crypto_name: '',
         }
     }
 
-    onChangeLocationName(e) {
+    onChangeCryptoName(e) {
         this.setState({
-            location_name: e.target.value
+            crypto_name: e.target.value
         });
     }
 
     onSubmit(e) {
         e.preventDefault();
 
-        const newLocation = {
-            location_name: this.state.location_name,
+        const newCrypto = {
+            crypto_name: this.state.crypto_name,
         };
 
         axios.post(
-            'http://localhost:4000/location/add', newLocation
+            'http://localhost:4000/crypto/add', newCrypto
         ).then(
             this.props.history.push('/')
         );
@@ -37,20 +37,20 @@ export default class AddLocation extends Component {
 
     render() {
         return (
-            <div style={{marginTop: 10}}>
-                <h3>Add a new location</h3>
+            <div style={{ marginTop: 10 }}>
+                <h3>Add a new crypto</h3>
                 <form onSubmit={this.onSubmit}>
-                    <div className="form-group"> 
+                    <div className="form-group">
                         <label>Name: </label>
-                        <input  
+                        <input
                             type="text"
                             className="form-control"
-                            value={this.state.location_name}
-                            onChange={this.onChangeLocationName}
+                            value={this.state.crypto_name}
+                            onChange={this.onChangeCryptoName}
                         />
                     </div>
                     <div className="form-group">
-                        <input type="submit" value="Add Location" className="btn btn-primary" />
+                        <input type="submit" value="Add Crypto" className="btn btn-primary" />
                     </div>
                 </form>
             </div>
