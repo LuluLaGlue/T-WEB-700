@@ -11,19 +11,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import store from "./store";
 
 import Home from "./components/core/home";
-import Register from "./components/auth/register.component";
-import Login from "./components/auth/login.component";
-import Settings from "./components/auth/settings.component";
+import Register from "./components/auth/register";
+import Login from "./components/auth/login";
+import Settings from "./components/auth/settings";
 import PrivateRoute from "./components/private-route/privateRoute";
 import Dashboard from "./components/dashboard/dashboard";
-import CryptoList from "./components/crypto/listCrypto.component";
-import AddLocation from "./components/crypto/addCrypto.component";
-import DetailLocation from "./components/crypto/detailCrypto.component";
-import EditLocation from "./components/crypto/editCrypto.component";
-import DeleteLocation from "./components/crypto/deleteCrypto.component";
+import CryptoList from "./components/crypto/listCrypto";
+import AddLocation from "./components/crypto/addCrypto";
+import DetailLocation from "./components/crypto/detailCrypto";
+import EditLocation from "./components/crypto/editCrypto";
+import DeleteLocation from "./components/crypto/deleteCrypto";
 import Press from "./components/Press/Press";
 
-import NavbarSite from "./components/shared/navbar.component";
+import NavbarSite from "./components/shared/navbar";
 
 import './App.css';
 
