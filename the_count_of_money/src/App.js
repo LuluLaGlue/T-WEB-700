@@ -17,10 +17,10 @@ import Settings from "./components/auth/settings";
 import PrivateRoute from "./components/private-route/privateRoute";
 import Dashboard from "./components/dashboard/dashboard";
 import CryptoList from "./components/crypto/listCrypto";
-import AddLocation from "./components/crypto/addCrypto";
-import DetailLocation from "./components/crypto/detailCrypto";
-import EditLocation from "./components/crypto/editCrypto";
-import DeleteLocation from "./components/crypto/deleteCrypto";
+import AddCrypto from "./components/crypto/addCrypto";
+import DetailCrypto from "./components/crypto/detailCrypto";
+import EditCrypto from "./components/crypto/editCrypto";
+import DeleteCrypto from "./components/crypto/deleteCrypto";
 import Press from "./components/Press/Press";
 
 import NavbarSite from "./components/shared/navbar";
@@ -66,10 +66,10 @@ class App extends Component {
                     <Switch>
                       <PrivateRoute exact path="/dashboard" component={Dashboard} />
                     </Switch>
-                    <Route path="/add" component={AddLocation} />
-                    <Route path="/detail/:id" exact component={DetailLocation} />
-                    <Route path="/edit/:id" component={EditLocation} />
-                    <Route path="/delete/:id" component={DeleteLocation} />
+                    <Route path="/add" component={AddCrypto} />
+                    <Route path="/detail/:id" exact component={DetailCrypto} />
+                    <Route path="/edit/:id" component={EditCrypto} />
+                    <Route path="/delete/:id" component={DeleteCrypto} />
                   </div>
                 </div>
               </Router>

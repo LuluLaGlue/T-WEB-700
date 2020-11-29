@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
-export default class RemoveLocation extends Component {
+export default class RemoveCrypto extends Component {
 
     constructor(props) {
         super(props);
@@ -9,17 +9,17 @@ export default class RemoveLocation extends Component {
         this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
-            location_name: '',
+            crypto_name: '',
         }
     }
 
     componentDidMount() {
         axios.get(
-            'http://localhost:4000/location/' + this.props.match.params.id
+            'http://localhost:4000/crypto/' + this.props.match.params.id
         ).then(
             response => {
                 this.setState({
-                    location_name: response.data.location_name,
+                    crypto_name: response.data.crypto_name,
                 })
             }
         ).catch(
@@ -31,17 +31,17 @@ export default class RemoveLocation extends Component {
 
     onSubmit(e) {
         axios.get(
-            'http://localhost:4000/location/delete/' + this.props.match.params.id
+            'http://localhost:4000/crypto/delete/' + this.props.match.params.id
         ).then(this.props.history.push('/'));
     }
 
     render() {
         return (
             <div>
-                <h3 align="center">Delete Location {this.state.location_name}</h3>
+                <h3 align="center">Delete Crypto {this.state.crypto_name}</h3>
                 <form onSubmit={this.onSubmit}>
                     <div className="form-group">
-                        <input type="submit" value="Remove Location" className="btn btn-primary" />
+                        <input type="submit" value="Remove Crypto" className="btn btn-primary" />
                     </div>
                 </form>
             </div>
