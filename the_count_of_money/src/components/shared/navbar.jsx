@@ -23,7 +23,7 @@ class NavbarSite extends Component {
                     <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="mr-auto">
                         <Nav.Link href="/">Market</Nav.Link>
-                        <Nav.Link href="/add">News</Nav.Link>
+                        <Nav.Link href="/press">News</Nav.Link>
                     </Nav>
                     <Nav>
                         <NavDropdown title={ user.name } id="collasible-nav-dropdown">
