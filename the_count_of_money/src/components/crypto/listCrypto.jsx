@@ -3,25 +3,23 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 
-const CryptoWeather = props => (
+const Crypto = props => (
     <div className="col-3 p-2">
         <div className="card text-center crypto-card bg-light text-dark">
             <div className="card-body">
                 <h5 className="card-title">
-                    <Link to={"/detail/" + props.crypto._id}>{props.crypto.crypto_name}</Link>
+                    <Link to={"/detail/" + props.crypto._id}>{props.crypto.name}</Link>
                 </h5>
-                <h1 className="card-text card-degree">{props.crypto.temp}°</h1>
-                <h6 className="card-subtitle mb-2">{props.crypto.weather}</h6>
+                <h1 className="card-text">{props.crypto.actual_price}</h1>
                 <h5 className="text-left">
-                    {props.crypto.temp_min}
-                    <span className="float-right">{props.crypto.temp_max}</span>
+                    {props.crypto.price_change}
+                    <span className="float-right">{props.crypto.highest_price}</span>
                 </h5>
                 <p className="text-left pb-2">
-                    min
-                    <span className="float-right">max</span>
+                    price change
+                    <span className="float-right">highest</span>
                 </p>
                 <Link to={"/detail/" + props.crypto._id} className="card-link">Details</Link>
-                <Link to={"/edit/" + props.crypto._id} className="card-link">Edit</Link>
                 <Link to={"/delete/" + props.crypto._id} className="card-link">Delete</Link>
             </div>
         </div>
@@ -32,34 +30,24 @@ export default class CryptoList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            cryptos: [],
-            cryptos_weather: []
+            cryptos: []
         };
-    }
-
-    updateCryptos(json) {
-        var result = json.map(function (crypto, i) {
-            axios.get(`http://localhost:4000/crypto/updateweather/${crypto._id}`)
-                .catch(function (error) { console.log(error); })
-        });
-        return result
     }
 
     componentDidMount() {
         axios.get(
-            'http://localhost:4000/crypto/'
+            'http://localhost:3100/cryptos'
         ).then(
             response => {
                 this.setState({ cryptos: response.data });
-                this.updateCryptos(response.data);
             }
         ).catch(function (error) { console.log(error); })
         return true
     }
 
-    cryptoWeatherList() {
+    cryptoList() {
         return this.state.cryptos.map(function (currentCrypto, i) {
-            return <CryptoWeather crypto={currentCrypto} key={i} />
+            return <Crypto crypto={currentCrypto} key={i} />
         })
     }
 
@@ -68,7 +56,7 @@ export default class CryptoList extends Component {
             <div>
                 <h2 className="text-center">Today</h2>
                 <div className="row pt-2">
-                    {this.cryptoWeatherList()}
+                    { this.cryptoList() }
                     <div className="col-3 p-2">
                         <Link to={"/add/"} className="card-link">
                             <div className="card text-center crypto-card bg-light">
