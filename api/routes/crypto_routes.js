@@ -10,29 +10,67 @@ const passport = require("passport");
 const Crypto = require("../models/crypto");
 
 router.route('/cryptos')
-  .get(function (req, res) {
+  .get(async function (req, res) {
 
     const token = req.header("authorization");
     if (token === undefined) {
-      return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+      await Crypto.find({
+        is_authorized: true
+      }).then(crypto => {
+        return res.status(200).json({
+          message: "Cryptos",
+          list: crypto,
+          method: req.method
+        })
+      })
+      .catch(err => {
+        console.log(err);
+        return res.json(err)
+      })
     }
-    let verifiedJwt = '';
-    try {
-      verifiedJwt = jwt.verify(token, keys.secretOrKey);
-    } catch (e) {
-      console.log(e)
-      return res.json(e)
-    }
+    else {
+      let verifiedJwt = '';
+      try {
+        verifiedJwt = jwt.verify(token, keys.secretOrKey);
+      } catch (e) {
+        console.log(e)
+        return res.json(e)
+      }
 
-    Crypto.find({
-      is_authorized: true
-    }).then(crypto => {
-      return res.status(200).json(crypto)
-    })
-    .catch(err => {
-      console.log(err);
-      return res.json(err)
-    })
+      let user_tmp;
+      let crypto_list = [];
+
+      await User.findOne({
+        _id: verifiedJwt.id
+      }).then(user => {
+        user_tmp = user;
+      })
+
+      for(item in user_tmp.cryptos){
+        let obj = user_tmp.cryptos[item]
+
+        await Crypto.findOne({
+          id: obj
+        }).then(async crypto => {
+          let resp_tmp;
+          resp_tmp = await fetch(process.env.CRYPTO_API+'/currencies/ticker?key='+process.env.CRYPTO_KEY+'&ids='+crypto.id+'&convert=EUR&interval=1h,1d,7d,30d&per-page=100&page=1',{
+            method:'GET',
+          })
+          .then(resp => resp.json())
+          .catch(e => console.log(e))
+          crypto_list.push(resp_tmp)
+        })
+        .catch(err => {
+          console.log(err);
+        })
+      }
+
+      res.status(200).json({
+        message: "User cryptos",
+        list: crypto_list,
+        method: req.method
+      })
+    }
   })
 
   .post(async function (req, res) {
@@ -59,7 +97,7 @@ router.route('/cryptos')
         id: obj
       }).then(async crypto => {
         let resp_tmp;
-        resp_tmp = await fetch(process.env.CRYPTO_API+'/currencies/ticker?key='+process.env.CRYPTO_KEY+'&ids='+crypto.id+'&interval=1h,1d,7d,30d&per-page=100&page=1',{
+        resp_tmp = await fetch(process.env.CRYPTO_API+'/currencies/ticker?key='+process.env.CRYPTO_KEY+'&ids='+crypto.id+'&convert=EUR&interval=1h,1d,7d,30d&per-page=100&page=1',{
           method:'GET',
         })
         .then(resp => resp.json())
@@ -118,7 +156,7 @@ router.route('/cryptos')
     }
 
     res.json({
-      message: "Following Cryptos Updated",
+      message: "Unfollowing Cryptos Updated",
       list: req.body.crypto_list,
       method: req.method
     })
