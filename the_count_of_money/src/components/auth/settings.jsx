@@ -7,7 +7,7 @@ import classnames from "classnames";
 
 
 class Login extends Component {
-    
+
     constructor(props) {
         super(props);
 
@@ -15,6 +15,7 @@ class Login extends Component {
         this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
+            username: "",
             email: "",
             password: "",
             errors: {}
@@ -56,7 +57,7 @@ class Login extends Component {
 
     render() {
         const { errors } = this.state;
-        
+
         return (
             <div className="row justify-content-md-center">
                 <div className="col-6 bg-light mt-5">
@@ -69,6 +70,20 @@ class Login extends Component {
                             {errors.email}
                             {errors.emailnotfound}
                         </span>
+                        <div className="form-group">
+                            <label htmlFor="username">Username</label>
+                            <span className="red-text">{errors.username}</span>
+                            <input
+                                onChange={this.onChange}
+                                value={this.state.username}
+                                error={errors.username}
+                                id="username"
+                                type="username"
+                                className={classnames("form-control", {
+                                    invalid: errors.username
+                                })}
+                            />
+                        </div>
                         <div className="form-group">
                             <label htmlFor="email">Email</label>
                             <input
