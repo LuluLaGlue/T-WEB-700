@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
 
-// Gestion de redirection auto quand un user n'est pas connecte
 const PrivateRoute = ({ component: Component, auth, ...rest }) => (
     <Route
         {...rest}

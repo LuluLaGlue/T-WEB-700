@@ -1,73 +1,49 @@
-import React from "react";
-import { Link, useHistory } from "react-router-dom";
-import { useState } from "react";
-import UpdateProfile from "../dashboard/UpdateProfile";
-import { Button, Tab, Tabs } from "react-bootstrap";
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { logoutUser } from "../../actions/authActions";
+import { Navbar, NavDropdown, Nav, Container } from "react-bootstrap";
 
-const Navbar = () => {
-  let isLogged = true;
-  let name = "toto";
-  const [modalShow, setModalShow] = useState(false);
-  const [key, setKey] = useState("money");
-  const history = useHistory();
 
-  const handleSelect = (route) => {
-    setKey(route);
-    history.push(route);
-  };
+class NavbarSite extends Component {
 
-  return (
-    <>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div className="container">
-          <Link to="/" className="navbar-brand">
-            The count of the Money
-          </Link>
+    onLogoutClick = e => {
+        e.preventDefault();
+        this.props.logoutUser();
+    };
 
-          <div className="collpase nav-collapse">
-            {isLogged ? (
-              <ul className="navbar-nav mr-auto">
-                <h5 className="navbar-brand">Bienvenue, {name}</h5>
-                <li className="navbar-item">
-                  <Button variant="primary" onClick={() => setModalShow(true)}>
-                    Update my profile
-                  </Button>
+    render() {
+        const { user } = this.props.auth;
 
-                  <UpdateProfile
-                    show={modalShow}
-                    onHide={() => setModalShow(false)}
-                  />
-                </li>
-              </ul>
-            ) : (
-              <ul className="navbar-nav mr-auto">
-                <li className="navbar-item">
-                  <Link to="/register" className="nav-link">
-                    Register
-                  </Link>
-                </li>
-                <li className="navbar-item">
-                  <Link to="/login" className="nav-link">
-                    Login
-                  </Link>
-                </li>
-              </ul>
-            )}
-          </div>
-        </div>
-      </nav>
-      <Tabs
-        id="controlled-tab-example"
-        activeKey={key}
-        onSelect={(k) => {
-          handleSelect(k);
-        }}
-      >
-        <Tab eventKey="/" title="Course of money"></Tab>
-        <Tab eventKey={"/press"} title="Press"></Tab>
-      </Tabs>
-    </>
-  );
+        return (
+            <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+                <Container>
+                    <Navbar.Brand href="/">The Count Of Money</Navbar.Brand>
+                    <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+                    <Navbar.Collapse id="responsive-navbar-nav">
+                    <Nav className="mr-auto">
+                        <Nav.Link href="/">Market</Nav.Link>
+                        <Nav.Link href="/add">News</Nav.Link>
+                    </Nav>
+                    <Nav>
+                        <NavDropdown title={ user.name } id="collasible-nav-dropdown">
+                        <NavDropdown.Item href="/login" >Login</NavDropdown.Item>
+                        <NavDropdown.Item href="/register" >Register</NavDropdown.Item>
+                        <NavDropdown.Item onClick={this.onLogoutClick}>Logout</NavDropdown.Item>
+                        <NavDropdown.Divider />
+                        <NavDropdown.Item href="/">Settings</NavDropdown.Item>
+                        </NavDropdown>
+                    </Nav>
+                    </Navbar.Collapse>
+                </Container>
+          </Navbar>
+        );
+    }
+}
+
+NavbarSite.propTypes = {
+    logoutUser: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -78,4 +54,4 @@ export default connect(
     mapStateToProps, {
         logoutUser
     }
-)(Navbar);
+)(NavbarSite);
