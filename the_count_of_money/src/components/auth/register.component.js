@@ -57,64 +57,66 @@ class Register extends Component {
         const { errors } = this.state;
 
         return (
-            <div className="row justify-content-md-center">
-                <div className="col-6 p-5 mt-5 card">
-                    <Link to="/">Back to home</Link>
-                    <h4><b>Register</b> below</h4>
+            <div class="container">
+                <div className="row justify-content-md-center">
+                    <div className="col-6 p-5 mt-5 card">
+                        <Link to="/">Back to home</Link>
+                        <h4><b>Register</b> below</h4>
 
-                    <form noValidate onSubmit={this.onSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
-                            <span className="red-text">{errors.email}</span>
-                            <input
-                                onChange={this.onChange}
-                                value={this.state.email}
-                                error={errors.email}
-                                id="email"
-                                type="email"
-                                className={classnames("form-control", {
-                                    invalid: errors.email
-                                })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <span className="red-text">{errors.password}</span>
-                            <input
-                                onChange={this.onChange}
-                                value={this.state.password}
-                                error={errors.password}
-                                id="password"
-                                type="password"
-                                className={classnames("form-control", {
-                                    invalid: errors.password
-                                })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password2">Confirm Password</label>
-                            <span className="red-text">{errors.password2}</span>
-                            <input
-                                onChange={this.onChange}
-                                value={this.state.password2}
-                                error={errors.password2}
-                                id="password2"
-                                type="password"
-                                className={classnames("form-control", {
-                                    invalid: errors.password2
-                                })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <button
-                                type="submit"
-                                className="btn btn-primary"
-                            >
-                            Sign up
-                            </button>
-                        </div>
-                    </form>
-                    <p>Already have an account? <Link to="/login">Log in</Link></p>
+                        <form noValidate onSubmit={this.onSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="email">Email</label>
+                                <span className="red-text">{errors.email}</span>
+                                <input
+                                    onChange={this.onChange}
+                                    value={this.state.email}
+                                    error={errors.email}
+                                    id="email"
+                                    type="email"
+                                    className={classnames("form-control", {
+                                        invalid: errors.email
+                                    })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="password">Password</label>
+                                <span className="red-text">{errors.password}</span>
+                                <input
+                                    onChange={this.onChange}
+                                    value={this.state.password}
+                                    error={errors.password}
+                                    id="password"
+                                    type="password"
+                                    className={classnames("form-control", {
+                                        invalid: errors.password
+                                    })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="password2">Confirm Password</label>
+                                <span className="red-text">{errors.password2}</span>
+                                <input
+                                    onChange={this.onChange}
+                                    value={this.state.password2}
+                                    error={errors.password2}
+                                    id="password2"
+                                    type="password"
+                                    className={classnames("form-control", {
+                                        invalid: errors.password2
+                                    })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                >
+                                Sign up
+                                </button>
+                            </div>
+                        </form>
+                        <p>Already have an account? <Link to="/login">Log in</Link></p>
+                    </div>
                 </div>
             </div>
         );
