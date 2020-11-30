@@ -1,17 +1,15 @@
-import { useState } from "react";
-import UpdateProfile from "./UpdateProfile";
-import Press from "../Press/Press";
+import React, { Component } from "react";
 
-const Dashboard = () => {
-  const [modalShow, setModalShow] = useState(false);
 
-  return (
-    <>
-      <Press />
+class Dashboard extends Component {
 
-      <UpdateProfile show={modalShow} onHide={() => setModalShow(false)} />
-    </>
-  );
-};
+    render() {
+        return (
+            <div className="text-center">
+                <h4>Welcome</h4>
+            </div>
+        );
+    }
+}
 
 export default Dashboard;

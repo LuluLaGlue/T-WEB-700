@@ -31,6 +31,11 @@ const UserSchema = new Schema({
     type: [String],
     default: []
   },
+  is_admin: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
   dark_mode: {
     type: Boolean,
     required: true,
