@@ -57,11 +57,11 @@ app.use(articles_route);
 
 
 const crypto_route = require("./routes/crypto_routes")
-const crypto_update = require('./config/cryptos.js');
+//const crypto_update = require('./config/cryptos.js');
 
 app.use(crypto_route);
-crypto_update.refreshCryptoDB();
-crypto_update.refreshCryptoValues();
+//crypto_update.refreshCryptoDB();
+//crypto_update.refreshCryptoValues();
 
 app.listen(PORT, function () {
   console.log("Server is running on Port: " + PORT);
