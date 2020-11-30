@@ -6,6 +6,79 @@ const CoinGecko = require("coingecko-api");
 
 const CoinGeckoClient = new CoinGecko()
 
+const updateCryptoValues = async crypto => {
+
+    let crypto_tmp = crypto
+
+    let resp_tmp;
+    let ohlc_daily = [];
+    let ohlc_hourly = [];
+    let ohlc_minute = [];
+
+    resp_tmp = await CoinGeckoClient.coins.fetch(crypto_tmp.id, {localization:false, sparkline: false});
+
+    if (resp_tmp.data.market_data.current_price.eur) crypto_tmp.actual_price = resp_tmp.data.market_data.current_price.eur
+    if (resp_tmp.data.market_data.price_change_24h) crypto_tmp.periods._1d = resp_tmp.data.market_data.price_change_24h
+    if (resp_tmp.data.market_data.high_24h.eur) crypto_tmp.highest_price_day = resp_tmp.data.market_data.high_24h.eur
+    if (resp_tmp.data.market_data.low_24h.eur) crypto_tmp.lowest_price_day = resp_tmp.data.market_data.low_24h.eur
+    if (resp_tmp.data.market_data.market_cap.eur) crypto_tmp.market_cap = resp_tmp.data.market_data.market_cap.eur
+    if (resp_tmp.data.market_data.circulating_supply.eur) crypto_tmp.circulating_supply = resp_tmp.data.market_data.circulating_supply.eur
+
+    let data_day = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=1',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    crypto_tmp.periods.last_24h.opening_prices = []
+    crypto_tmp.periods.last_24h.highest_prices = []
+    crypto_tmp.periods.last_24h.lowest_prices = []
+    crypto_tmp.periods.last_24h.closing_rates = []
+
+    for (price in data_day){
+      crypto_tmp.periods.last_24h.opening_prices.push(data_day[price][1])
+      crypto_tmp.periods.last_24h.highest_prices.push(data_day[price][2])
+      crypto_tmp.periods.last_24h.lowest_prices.push(data_day[price][3])
+      crypto_tmp.periods.last_24h.closing_rates.push(data_day[price][4])
+    }
+    crypto_tmp.save()
+
+    let data_week = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=7',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    crypto_tmp.periods.last_week.opening_prices = []
+    crypto_tmp.periods.last_week.highest_prices = []
+    crypto_tmp.periods.last_week.lowest_prices = []
+    crypto_tmp.periods.last_week.closing_rates = []
+
+    for (let i=0;i<data_week.length;i=i+6){
+      crypto_tmp.periods.last_week.opening_prices.push(data_week[i][1])
+      crypto_tmp.periods.last_week.highest_prices.push(data_week[i][2])
+      crypto_tmp.periods.last_week.lowest_prices.push(data_week[i][3])
+      crypto_tmp.periods.last_week.closing_rates.push(data_week[i][4])
+    }
+
+    let data_monthly = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=30',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+    crypto_tmp.periods.last_month.opening_prices = []
+    crypto_tmp.periods.last_month.highest_prices = []
+    crypto_tmp.periods.last_month.lowest_prices = []
+    crypto_tmp.periods.last_month.closing_rates = []
+
+    for (let i=0;i<data_monthly.length;i=i+6){
+      crypto_tmp.periods.last_month.opening_prices.push(data_monthly[i][1])
+      crypto_tmp.periods.last_month.highest_prices.push(data_monthly[i][2])
+      crypto_tmp.periods.last_month.lowest_prices.push(data_monthly[i][3])
+      crypto_tmp.periods.last_month.closing_rates.push(data_monthly[i][4])
+    }
+
+    crypto_tmp.save()
+
+}
+
 const refreshCryptoDB = async () => {
 
   let resp_tmp = await CoinGeckoClient.coins.all({per_page:200, page:1, localization:false})
@@ -66,76 +139,8 @@ const refreshCryptoValues = async () => {
     is_authorized: true
   }).then(async crypto => {
     for (item in crypto){
-      let crypto_tmp = crypto[item]
-
-      let resp_tmp;
-      let ohlc_daily = [];
-      let ohlc_hourly = [];
-      let ohlc_minute = [];
-
-      resp_tmp = await CoinGeckoClient.coins.fetch(crypto_tmp.id, {localization:false, sparkline: false});
-
-      if (resp_tmp.data.market_data.current_price.eur) crypto_tmp.actual_price = resp_tmp.data.market_data.current_price.eur
-      if (resp_tmp.data.market_data.price_change_24h) crypto_tmp.periods._1d = resp_tmp.data.market_data.price_change_24h
-      if (resp_tmp.data.market_data.high_24h.eur) crypto_tmp.highest_price_day = resp_tmp.data.market_data.high_24h.eur
-      if (resp_tmp.data.market_data.low_24h.eur) crypto_tmp.lowest_price_day = resp_tmp.data.market_data.low_24h.eur
-      if (resp_tmp.data.market_data.market_cap.eur) crypto_tmp.market_cap = resp_tmp.data.market_data.market_cap.eur
-      if (resp_tmp.data.market_data.circulating_supply.eur) crypto_tmp.circulating_supply = resp_tmp.data.market_data.circulating_supply.eur
-
-      let data_day = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=1',{
-        method:'GET',
-      }).then(resp => resp.json())
-        .catch(e => console.log(error))
-
-      crypto_tmp.periods.last_24h.opening_prices = []
-      crypto_tmp.periods.last_24h.highest_prices = []
-      crypto_tmp.periods.last_24h.lowest_prices = []
-      crypto_tmp.periods.last_24h.closing_rates = []
-
-      for (price in data_day){
-        crypto_tmp.periods.last_24h.opening_prices.push(data_day[price][1])
-        crypto_tmp.periods.last_24h.highest_prices.push(data_day[price][2])
-        crypto_tmp.periods.last_24h.lowest_prices.push(data_day[price][3])
-        crypto_tmp.periods.last_24h.closing_rates.push(data_day[price][4])
-      }
-      crypto_tmp.save()
-
-      let data_week = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=7',{
-        method:'GET',
-      }).then(resp => resp.json())
-        .catch(e => console.log(error))
-
-      crypto_tmp.periods.last_week.opening_prices = []
-      crypto_tmp.periods.last_week.highest_prices = []
-      crypto_tmp.periods.last_week.lowest_prices = []
-      crypto_tmp.periods.last_week.closing_rates = []
-
-      for (let i=0;i<data_week.length;i=i+6){
-        crypto_tmp.periods.last_week.opening_prices.push(data_week[i][1])
-        crypto_tmp.periods.last_week.highest_prices.push(data_week[i][2])
-        crypto_tmp.periods.last_week.lowest_prices.push(data_week[i][3])
-        crypto_tmp.periods.last_week.closing_rates.push(data_week[i][4])
-      }
-
-      let data_monthly = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=30',{
-        method:'GET',
-      }).then(resp => resp.json())
-        .catch(e => console.log(error))
-      crypto_tmp.periods.last_month.opening_prices = []
-      crypto_tmp.periods.last_month.highest_prices = []
-      crypto_tmp.periods.last_month.lowest_prices = []
-      crypto_tmp.periods.last_month.closing_rates = []
-
-      for (let i=0;i<data_monthly.length;i=i+6){
-        crypto_tmp.periods.last_month.opening_prices.push(data_monthly[i][1])
-        crypto_tmp.periods.last_month.highest_prices.push(data_monthly[i][2])
-        crypto_tmp.periods.last_month.lowest_prices.push(data_monthly[i][3])
-        crypto_tmp.periods.last_month.closing_rates.push(data_monthly[i][4])
-      }
-
-      crypto_tmp.save()
-
-      crypto_list.push(crypto_tmp.id)
+      updateCryptoValues(crypto[item])
+      crypto_list.push(crypto[item].id)
     }
   })
   .catch(error => console.log(error))
@@ -146,4 +151,4 @@ const refreshCryptoValues = async () => {
 
 };
 
-module.exports = { refreshCryptoDB, refreshCryptoValues }
+module.exports = { refreshCryptoDB, refreshCryptoValues, updateCryptoValues }
