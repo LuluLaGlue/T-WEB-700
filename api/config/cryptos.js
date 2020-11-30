@@ -16,13 +16,17 @@ const updateCryptoValues = async crypto => {
     let ohlc_minute = [];
 
     resp_tmp = await CoinGeckoClient.coins.fetch(crypto_tmp.id, {localization:false, sparkline: false});
-
+    console.log(resp_tmp.data.market_data.price_change_24h_in_currency.eur)
     if (resp_tmp.data.market_data.current_price.eur) crypto_tmp.actual_price = resp_tmp.data.market_data.current_price.eur
-    if (resp_tmp.data.market_data.price_change_24h) crypto_tmp.periods._1d = resp_tmp.data.market_data.price_change_24h
+    if (resp_tmp.data.market_data.price_change_24h_in_currency.eur) crypto_tmp.price_change_24h = resp_tmp.data.market_data.price_change_24h_in_currency.eur
     if (resp_tmp.data.market_data.high_24h.eur) crypto_tmp.highest_price_day = resp_tmp.data.market_data.high_24h.eur
     if (resp_tmp.data.market_data.low_24h.eur) crypto_tmp.lowest_price_day = resp_tmp.data.market_data.low_24h.eur
     if (resp_tmp.data.market_data.market_cap.eur) crypto_tmp.market_cap = resp_tmp.data.market_data.market_cap.eur
     if (resp_tmp.data.market_data.circulating_supply.eur) crypto_tmp.circulating_supply = resp_tmp.data.market_data.circulating_supply.eur
+    if (resp_tmp.data.market_data.price_change_percentage_24h) crypto_tmp.periods.last_24h.change_percentage = resp_tmp.data.market_data.price_change_percentage_24h
+    if (resp_tmp.data.market_data.price_change_percentage_7d) crypto_tmp.periods.last_week.change_percentage = resp_tmp.data.market_data.price_change_percentage_7d
+    if (resp_tmp.data.market_data.price_change_percentage_30d) crypto_tmp.periods.last_month.change_percentage = resp_tmp.data.market_data.price_change_percentage_30d
+
 
     let data_day = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=1',{
       method:'GET',
