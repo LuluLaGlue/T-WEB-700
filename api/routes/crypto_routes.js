@@ -19,7 +19,7 @@ router.route('/cryptos')
     if (token === undefined) {
       await Crypto.find({
         is_authorized: true
-      }).then(crypto => {m
+      }).then(crypto => {
         return res.status(200).json({
           message: "Cryptos",
           list: crypto,
