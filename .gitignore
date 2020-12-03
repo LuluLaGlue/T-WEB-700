@@ -106,3 +106,6 @@ dist
 # api node-modules
 
 ./api/node_modules
+
+api-BACK/
+BACK front/

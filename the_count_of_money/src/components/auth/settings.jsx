@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import { Link, withRouter  } from "react-router-dom";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { registerUser } from "../../actions/authActions";
+import { loginUser } from "../../actions/authActions";
 import classnames from "classnames";
 
 
-class Register extends Component {
+class Login extends Component {
 
     constructor(props) {
         super(props);
@@ -15,21 +15,24 @@ class Register extends Component {
         this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
+            username: "",
             email: "",
             password: "",
-            password2: "",
             errors: {}
         };
     }
 
     componentDidMount() {
-        // If logged in and user navigates to Register page, should redirect them to dashboard
+        // If logged in and user navigates to Login page, should redirect them to dashboard
         if (this.props.auth.isAuthenticated) {
             this.props.history.push("/dashboard");
         }
     }
 
     componentWillReceiveProps(nextProps) {
+        if (nextProps.auth.isAuthenticated) {
+            this.props.history.push("/dashboard"); // push user to dashboard when they login
+        }
         if (nextProps.errors) {
             this.setState({
                 errors: nextProps.errors
@@ -44,28 +47,45 @@ class Register extends Component {
     onSubmit(e) {
         e.preventDefault();
 
-        const newUser = {
+        const userData = {
             email: this.state.email,
-            password: this.state.password,
-            password2: this.state.password2
+            password: this.state.password
         };
 
-        this.props.registerUser(newUser, this.props.history);
-    };
+        this.props.loginUser(userData);
+    }
 
     render() {
         const { errors } = this.state;
 
         return (
             <div className="row justify-content-md-center">
-                <div className="col-6 p-5 mt-5 card">
+                <div className="col-6 bg-light mt-5">
                     <Link to="/">Back to home</Link>
-                    <h4><b>Register</b> below</h4>
+                    <h4><b>Login</b> below</h4>
+                    <p>Don't have an account? <Link to="/register">Register</Link></p>
 
                     <form noValidate onSubmit={this.onSubmit}>
+                        <span className="red-text">
+                            {errors.email}
+                            {errors.emailnotfound}
+                        </span>
+                        <div className="form-group">
+                            <label htmlFor="username">Username</label>
+                            <span className="red-text">{errors.username}</span>
+                            <input
+                                onChange={this.onChange}
+                                value={this.state.username}
+                                error={errors.username}
+                                id="username"
+                                type="username"
+                                className={classnames("form-control", {
+                                    invalid: errors.username
+                                })}
+                            />
+                        </div>
                         <div className="form-group">
                             <label htmlFor="email">Email</label>
-                            <span className="red-text">{errors.email}</span>
                             <input
                                 onChange={this.onChange}
                                 value={this.state.email}
@@ -73,13 +93,16 @@ class Register extends Component {
                                 id="email"
                                 type="email"
                                 className={classnames("form-control", {
-                                    invalid: errors.email
+                                    invalid: errors.email || errors.emailnotfound
                                 })}
                             />
                         </div>
+                        <span className="red-text">
+                            {errors.password}
+                            {errors.passwordincorrect}
+                        </span>
                         <div className="form-group">
                             <label htmlFor="password">Password</label>
-                            <span className="red-text">{errors.password}</span>
                             <input
                                 onChange={this.onChange}
                                 value={this.state.password}
@@ -87,21 +110,7 @@ class Register extends Component {
                                 id="password"
                                 type="password"
                                 className={classnames("form-control", {
-                                    invalid: errors.password
-                                })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password2">Confirm Password</label>
-                            <span className="red-text">{errors.password2}</span>
-                            <input
-                                onChange={this.onChange}
-                                value={this.state.password2}
-                                error={errors.password2}
-                                id="password2"
-                                type="password"
-                                className={classnames("form-control", {
-                                    invalid: errors.password2
+                                    invalid: errors.password || errors.passwordincorrect
                                 })}
                             />
                         </div>
@@ -110,19 +119,19 @@ class Register extends Component {
                                 type="submit"
                                 className="btn btn-primary"
                             >
-                            Sign up
+                            Login
                             </button>
                         </div>
                     </form>
-                    <p>Already have an account? <Link to="/login">Log in</Link></p>
                 </div>
             </div>
         );
     }
 }
 
-Register.propTypes = {
-    registerUser: PropTypes.func.isRequired,
+
+Login.propTypes = {
+    loginUser: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired,
     errors: PropTypes.object.isRequired
 };
@@ -134,5 +143,5 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { registerUser }
-)(withRouter(Register));
+    { loginUser }
+)(Login);

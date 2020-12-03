@@ -9,12 +9,19 @@ const CryptoSchema = new Schema({
   id: {
     type: String
   },
+  symbol: {
+    type: String
+  },
   is_authorized: {
     type: Boolean,
     default: false
   },
+  is_requested: {
+    type: Boolean,
+    default: false
+  },
   logo: {
-    type: String,
+    type: {},
     required: false
   },
   actual_price: {
@@ -22,32 +29,113 @@ const CryptoSchema = new Schema({
     required: false,
     default: 0
   },
-  highest_price: {
+  lowest_price_day: {
     type: Number,
     required: false,
     default: 0
   },
-  price_change: {
-    _1h: {
-      type: Number,
-      required : false,
-      default: 0
+  highest_price_day: {
+    type: Number,
+    required: false,
+    default: 0
+  },
+  market_cap: {
+    type: Number,
+    required: false,
+    default: 0
+  },
+  circulating_supply: {
+    type: Number,
+    required: false,
+    default: 0
+  },
+  price_change_24h: {
+    type: Number,
+    required: false,
+    default: 0
+  },
+  periods: {
+    last_24h: {
+      change_percentage:{
+        type: Number,
+        required: false,
+        default: 0
+      },
+      opening_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      highest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      lowest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      closing_rates:{
+        type: [Number],
+        required: false,
+        default: [0]
+      }
     },
-    _1d: {
-      type: Number,
-      required : false,
-      default: 0
+    last_week: {
+      change_percentage:{
+        type: Number,
+        required: false,
+        default: 0
+      },
+      opening_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      highest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      lowest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      closing_rates:{
+        type: [Number],
+        required: false,
+        default: [0]
+      }
     },
-    _7d: {
-      type: Number,
-      required : false,
-      default: 0
+    last_month: {
+      change_percentage:{
+        type: Number,
+        required: false,
+        default: 0
+      },
+      opening_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      highest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      lowest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      closing_rates:{
+        type: [Number],
+        required: false,
+        default: [0]
+      }
     },
-    _30d:{
-      type: Number,
-      required : false,
-      default: 0
-    }
   }
 });
 
