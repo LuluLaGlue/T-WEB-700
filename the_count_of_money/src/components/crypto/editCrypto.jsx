@@ -16,7 +16,7 @@ export default class EditCrypto extends Component {
 
     componentDidMount() {
         axios.get(
-            'http://localhost:4000/crypto/' + this.props.match.params.id
+            'http://localhost:3100/crypto/' + this.props.match.params.id
         ).then(
             response => {
                 this.setState({
