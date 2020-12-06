@@ -29,7 +29,7 @@ export default class AddCrypto extends Component {
         };
 
         axios.post(
-            'http://localhost:4000/crypto/add', newCrypto
+            'http://localhost:3100/crypto/add', newCrypto
         ).then(
             this.props.history.push('/')
         );

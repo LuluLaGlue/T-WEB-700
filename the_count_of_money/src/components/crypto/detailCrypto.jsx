@@ -15,7 +15,7 @@ export default class DetailCrypto extends Component {
 
     componentDidMount() {
         axios.get(
-            'http://localhost:4000/crypto/' + this.props.match.params.id
+            'http://localhost:3100/crypto/' + this.props.match.params.id
         ).then(
             response => { this.setState(response.data) }
         ).catch(
@@ -28,11 +28,11 @@ export default class DetailCrypto extends Component {
     render() {
         return (
             <div>
-                <h3 align="center">Details for {this.state.crypto_wname}</h3>
-                <h5>Weather: {this.state.weather}</h5>
-                <h5>Temp: {this.state.temp}</h5>
-                <h5>Temp max: {this.state.temp_max}</h5>
-                <h5>Temp min: {this.state.temp_min}</h5>
+                <h3 align="center">Details for {this.state.name}</h3>
+                <h5>Price: {this.state.actual_price}</h5>
+                <h5>Lowest 24h: {this.state.lowest_price_day}</h5>
+                <h5>Highest 24h: {this.state.highest_price_day}</h5>
+                <h5>Marketcap: {this.state.market_cap}</h5>
                 <Link to={"/edit/" + this.state._id}>Edit</Link> | <Link to={"/delete/" + this.state._id}>Delete</Link>
             </div>
         )
