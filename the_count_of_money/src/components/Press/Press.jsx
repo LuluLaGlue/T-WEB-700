@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Button } from "react-bootstrap";
 import Select from "react-select";
-import makeAnimated from "react-select/animated";
 import "./press.css";
 
 const Press = () => {
@@ -39,14 +38,12 @@ const Press = () => {
       await axios
         .get("http://localhost:3100/articles?params=", config)
         .then((res) => {
-          console.log("res", res.data);
           setData(res.data);
         });
     const getTag = async () =>
       await axios
         .get(`http://localhost:3100/articles/list/categories`, config)
         .then((result) => {
-          console.log("result", result);
           setTag(result.data);
         });
     fetchdata();
@@ -55,42 +52,52 @@ const Press = () => {
 
   const getPressByTag = async () => {
     await axios
-      .get(`http://localhost:3100/articles?params=${tag}`, config)
+      .get(`http://localhost:3100/articles?params=${newTag}`, config)
       .then((res) => {
         console.log("res", res.data);
-        setTag(res.data);
+        /* res.data.map((i) => {
+          return setData(i);
+        }); */
       });
   };
 
-  const animatedComponents = makeAnimated();
-  console.log("tag", tag);
+  let newTag = [];
+
+  /*   const updateTag = (e) => {
+    newTag.push(e);
+    console.log("newTag dans la fonction", newTag);
+  }; */
+  console.log("newTag", newTag);
   return (
     <>
       <h2 className="title">What's new ?</h2>
-
-      <div>
-        Search by key word :
-        <div>
-          <select multiple className="custom-select" data-live-search="true">
-            {tag.map((data) => {
-              return <option key={data}>{data}</option>;
-            })}
-          </select>
+      Search by key word :
+      <div className="search">
+        <div className="select">
           <Select
-            closeMenuOnSelect={false}
-            components={animatedComponents}
-            isMulti
             options={tag.map((data) => {
-              console.log("data", data);
-              return { data };
+              return { value: data, label: data };
             })}
+            isMulti
+            isClearable
+            className="basic-multi-select"
+            onChange={(e) => {
+              let interm;
+              let iter;
+              for (iter in e) {
+                interm = e[iter].value;
+              }
+              newTag.push(interm);
+              console.log("test", newTag);
+            }}
           />
-          <Button onClick={getPressByTag} variant="info">
+        </div>
+        <div className="button">
+          <Button onClick={() => getPressByTag(newTag)} variant="info">
             Valider
           </Button>
         </div>
       </div>
-
       <div className="d-flex justify-content-center">
         <div className="d-flex justify-content-center press-container">
           {data.map((data) => {

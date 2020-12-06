@@ -37,47 +37,44 @@ export default class CryptoList extends Component {
     };
   }
 
-    componentDidMount() {
-        axios.get(
-            'http://localhost:3100/cryptos'
-        ).then(
-            response => {
-                this.setState({ cryptos: response.data });
-                return true
-            }
-        ).catch(function (error) { console.log(error); })
-    }
+  componentDidMount() {
+    axios
+      .get("http://localhost:3100/cryptos")
+      .then((response) => {
+        this.setState({ cryptos: response.data });
+        return true;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
 
-    cryptoList() {
-        return this.state.cryptos.list.map(function (currentCrypto, i) {
-            return <Crypto crypto={currentCrypto} key={i} />
-        })
-    }
+  cryptoList() {
+    return this.state.cryptos.list.map(function (currentCrypto, i) {
+      return <Crypto crypto={currentCrypto} key={i} />;
+    });
+  }
 
-    render() {
-        if (this.state.cryptos.list === undefined) { return null }
-        return (
-            <div>
-                <h2 className="text-center">Today</h2>
-                <div className="row pt-2">
-                    {this.cryptoList()}
-                    <div className="col-3 p-2">
-                        <Link to={"/add/"} className="card-link">
-                            <div className="card text-center crypto-card bg-light">
-                                <div className="card-body">
-                                    <h1 className="card-text">
-                                        Add Crypto
-                                    </h1>
-                                </div>
-                            </div>
-                        </Link>
-                    </div>
+  render() {
+    if (this.state.cryptos.list === undefined) {
+      return null;
+    }
+    return (
+      <>
+        <h2 className="text-center">Today</h2>
+        <div className="row pt-2">
+          {this.cryptoList()}
+          <div className="col-3 p-2">
+            <Link to={"/add/"} className="card-link">
+              <div className="card text-center crypto-card bg-light">
+                <div className="card-body">
+                  <h1 className="card-text">Add Crypto</h1>
                 </div>
               </div>
             </Link>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 }
