@@ -3,6 +3,7 @@ import axios from "axios";
 //import { useHistory } from "react-router-dom";
 import { Card, Button } from "react-bootstrap";
 import "./press.css";
+import Container from "react-bootstrap/Container";
 
 const Press = () => {
   const [data, setData] = useState([
@@ -49,7 +50,7 @@ const Press = () => {
   }, []);
 
   return (
-    <>
+    <Container>
       <h2 className="title">What's new ?</h2>
 
       <div>
@@ -74,7 +75,7 @@ const Press = () => {
           })}
         </div>
       </div>
-    </>
+    </Container>
   );
 };
 

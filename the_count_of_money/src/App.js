@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import setAuthToken from "./utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "./actions/authActions";
-import Container from "react-bootstrap/Container";
 
 import { Provider } from "react-redux";
 
@@ -58,20 +57,18 @@ class App extends Component {
             <Provider store={store}>
               <Router>
                 <NavbarSite />
-                <Container>
-                  <Route path="/" exact component={CryptoList} />
-                  <Route exact path="/register" component={Register} />
-                  <Route exact path="/login" component={Login} />
-                  <Route exact path="/press" component={Press} />
-                  <Route path="/detail/:id" exact component={DetailCrypto} />
-                  <Switch>
-                    <PrivateRoute exact path="/dashboard" component={Dashboard} />
-                    <PrivateRoute exact path="/settings" component={Settings} />
-                    <PrivateRoute exact path="/add" component={AddCrypto} />
-                    <PrivateRoute path="/edit/:id" component={EditCrypto} />
-                    <PrivateRoute path="/delete/:id" component={DeleteCrypto} />
-                  </Switch>
-                </Container>
+                <Route path="/" exact component={CryptoList} />
+                <Route exact path="/register" component={Register} />
+                <Route exact path="/login" component={Login} />
+                <Route exact path="/press" component={Press} />
+                <Route path="/detail/:id" exact component={DetailCrypto} />
+                <Switch>
+                  <PrivateRoute exact path="/dashboard" component={Dashboard} />
+                  <PrivateRoute exact path="/settings" component={Settings} />
+                  <PrivateRoute exact path="/add" component={AddCrypto} />
+                  <PrivateRoute path="/edit/:id" component={EditCrypto} />
+                  <PrivateRoute path="/delete/:id" component={DeleteCrypto} />
+                </Switch>
               </Router>
             </Provider>
         );

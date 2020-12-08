@@ -3,26 +3,30 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
 
 const Crypto_row = props => (
     <tr class="list-group-item-action">
+        <td class="align-middle">{props.crypto.rank}</td>
         <th class="align-middle py-4" scope="row">
             <Link to={"/detail/" + props.crypto.id} className="text-body">
-                <img class="mr-1" src={props.crypto.logo.thumb}></img>
+                <img class="mr-1" src={props.crypto.logo}></img>
                 {props.crypto.name}
             </Link>
         </th>
-        <td class="align-middle">{props.crypto.actual_price}</td>
-        <td class={props.crypto.price_change_24h > 0 ? 'text-success align-middle' : 'text-danger align-middle'}>{props.crypto.price_change_24h}</td>
+        <td class="align-middle">€{props.crypto.actual_price.toFixed(4)}</td>
+        <td class={props.crypto.price_change_24h > 0 ? 'text-success align-middle' : 'text-danger align-middle'}>
+            <span id="caret">{props.crypto.price_change_24h > 0 ? '▲' : '▼'}</span>
+            {props.crypto.price_change_24h.toFixed(2)}%
+        </td>
+        <td class="align-middle">€{props.crypto.circulating_supply}</td>
         <td class="align-middle">{props.crypto.circulating_supply}</td>
-        <td class="align-middle">{props.crypto.circulating_supply}</td>
-        <td class="align-middle">${props.crypto.market_cap}</td>
-        <td class="align-middle">{props.crypto.lowest_price_day}</td>
-        <td class="align-middle">{props.crypto.highest_price_day}</td>
+        <td class="align-middle">€{props.crypto.market_cap.toFixed(0)}</td>
     </tr>
 )
+
 
 export default class CryptoList extends Component {
     constructor(props) {
@@ -59,7 +63,6 @@ export default class CryptoList extends Component {
 
         const marketTooltip = props => (
             <Tooltip {...props}>Within the blockchain industry, the term market capitalization (or market cap) refers to a metric that measures the relative size of a cryptocurrency. It is calculated by multiplying the current market price of a particular coin or token with the total number of coins in circulation.
-
             Market Cap = Current Price x Circulating Supply</Tooltip>
         );
 
@@ -68,31 +71,37 @@ export default class CryptoList extends Component {
         );
 
         return (
-            <div>
-                <h1 className="text-center">Cryptos list</h1>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Cryptocurrency</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">24h Change</th>
-                            <OverlayTrigger placement="bottom" overlay={supplyTooltip}>
-                            <th scope="col">Supply</th>
-                            </OverlayTrigger>
-                            <OverlayTrigger placement="bottom" overlay={volumeTooltip}>
-                            <th scope="col">Volume</th>
-                            </OverlayTrigger>
-                            <OverlayTrigger placement="bottom" overlay={marketTooltip}>
-                            <th scope="col">Market cap</th>
-                            </OverlayTrigger>
-                            <th scope="col">24h Lowest</th>
-                            <th scope="col">24h Highest</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.cryptoList()}
-                    </tbody>
-                </table>
+            <div class="row justify-content-md-center">
+                <div className="col-9">
+                    <table class="table my-4">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Cryptocurrency</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">24h</th>
+                                <th scope="col">
+                                    <OverlayTrigger placement="bottom" overlay={marketTooltip}>
+                                    <span>Market cap <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
+                                    </OverlayTrigger>
+                                </th>
+                                <th scope="col">
+                                    <OverlayTrigger placement="bottom" overlay={volumeTooltip}>
+                                    <span>Volume <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
+                                    </OverlayTrigger>
+                                </th>
+                                <th scope="col">
+                                    <OverlayTrigger placement="bottom" overlay={supplyTooltip}>
+                                    <span>Supply <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
+                                    </OverlayTrigger>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.cryptoList()}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )
     }
