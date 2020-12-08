@@ -2,57 +2,224 @@ const mongoose = require("mongoose");
 const Crypto = require("../models/crypto");
 const fetch = require('node-fetch');
 const moment = require('moment');
-const CoinGecko = require("coingecko-api");
+const jwt = require("jsonwebtoken");
+const keys = require('../config/keys.js');
 
-const CoinGeckoClient = new CoinGecko()
+const updateCryptoValues = async crypto => {
+
+    let crypto_tmp = crypto
+
+    let ohlc_daily = [];
+    let ohlc_hourly = [];
+    let ohlc_minute = [];
+
+    let euros = await fetch('http://api.coincap.io/v2/rates/euro',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    let rateUsd = parseFloat(euros.data.rateUsd)
+
+    let resp_tmp = await fetch('http://api.coincap.io/v2/assets?ids='+crypto_tmp.id,{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    crypto_tmp.actual_price = parseFloat(resp_tmp.data[0].priceUsd)/rateUsd
+    crypto_tmp.market_cap = parseFloat(resp_tmp.data[0].marketCapUsd)/rateUsd
+    crypto_tmp.circulating_supply = parseFloat(resp_tmp.data[0].supply)
+    crypto_tmp.price_change_24h = parseFloat(resp_tmp.data[0].changePercent24Hr)
+
+    //crypto_tmp.lowest_price_day = resp_tmp.data.priceUsd
+    //crypto_tmp.highest_price_day = resp_tmp.data.priceUsd
+    //console.log(crypto_tmp)
+
+    let test_tmp = await fetch('http://api.coincap.io/v2/candles?exchange=bitfinex&interval=m1&baseId='+crypto_tmp.id+'&quoteId=united-states-dollar',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    crypto_tmp.periods.last_2h.opening_prices = []
+    crypto_tmp.periods.last_2h.highest_prices = []
+    crypto_tmp.periods.last_2h.lowest_prices = []
+    crypto_tmp.periods.last_2h.closing_rates = []
+    for (i = (test_tmp.data.length-121); i<test_tmp.data.length-1;i++){
+      crypto_tmp.periods.last_2h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+      crypto_tmp.periods.last_2h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+      crypto_tmp.periods.last_2h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+      crypto_tmp.periods.last_2h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+    }
+
+    test_tmp = await fetch('http://api.coincap.io/v2/candles?exchange=bitfinex&interval=h1&baseId='+crypto_tmp.id+'&quoteId=united-states-dollar',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    crypto_tmp.periods.last_48h.opening_prices = []
+    crypto_tmp.periods.last_48h.highest_prices = []
+    crypto_tmp.periods.last_48h.lowest_prices = []
+    crypto_tmp.periods.last_48h.closing_rates = []
+
+    for (i = (test_tmp.data.length-48); i<test_tmp.data.length;i++){
+      crypto_tmp.periods.last_48h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+      crypto_tmp.periods.last_48h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+      crypto_tmp.periods.last_48h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+      crypto_tmp.periods.last_48h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+    }
+
+    crypto_tmp.periods.last_24h.opening_prices = []
+    crypto_tmp.periods.last_24h.highest_prices = []
+    crypto_tmp.periods.last_24h.lowest_prices = []
+    crypto_tmp.periods.last_24h.closing_rates = []
+
+    for (i = (test_tmp.data.length-24); i<test_tmp.data.length;i++){
+      crypto_tmp.periods.last_60d.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+      crypto_tmp.periods.last_60d.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+      crypto_tmp.periods.last_60d.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+      crypto_tmp.periods.last_60d.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+    }
+
+    test_tmp = await fetch('http://api.coincap.io/v2/candles?exchange=bitfinex&interval=d1&baseId='+crypto_tmp.id+'&quoteId=united-states-dollar',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    crypto_tmp.periods.last_month.opening_prices = []
+    crypto_tmp.periods.last_month.highest_prices = []
+    crypto_tmp.periods.last_month.lowest_prices = []
+    crypto_tmp.periods.last_month.closing_rates = []
+
+    for (i = (test_tmp.data.length-30); i<test_tmp.data.length;i++){
+      crypto_tmp.periods.last_month.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+      crypto_tmp.periods.last_month.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+      crypto_tmp.periods.last_month.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+      crypto_tmp.periods.last_month.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+    }
+
+    crypto_tmp.periods.last_week.opening_prices = []
+    crypto_tmp.periods.last_week.highest_prices = []
+    crypto_tmp.periods.last_week.lowest_prices = []
+    crypto_tmp.periods.last_week.closing_rates = []
+
+    for (i = (test_tmp.data.length-7); i<test_tmp.data.length;i++){
+      crypto_tmp.periods.last_week.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+      crypto_tmp.periods.last_week.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+      crypto_tmp.periods.last_week.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+      crypto_tmp.periods.last_week.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+    }
+
+    crypto_tmp.periods.last_60d.opening_prices = []
+    crypto_tmp.periods.last_60d.highest_prices = []
+    crypto_tmp.periods.last_60d.lowest_prices = []
+    crypto_tmp.periods.last_60d.closing_rates = []
+
+    for (i = (test_tmp.data.length-60); i<test_tmp.data.length;i++){
+      crypto_tmp.periods.last_60d.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+      crypto_tmp.periods.last_60d.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+      crypto_tmp.periods.last_60d.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+      crypto_tmp.periods.last_60d.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+    }
+
+    crypto_tmp.save()
+
+    /*
+    let data_day = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=1',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    crypto_tmp.periods.last_24h.opening_prices = []
+    crypto_tmp.periods.last_24h.highest_prices = []
+    crypto_tmp.periods.last_24h.lowest_prices = []
+    crypto_tmp.periods.last_24h.closing_rates = []
+
+    for (price in data_day){
+      crypto_tmp.periods.last_24h.opening_prices.push(data_day[price][1])
+      crypto_tmp.periods.last_24h.highest_prices.push(data_day[price][2])
+      crypto_tmp.periods.last_24h.lowest_prices.push(data_day[price][3])
+      crypto_tmp.periods.last_24h.closing_rates.push(data_day[price][4])
+    }
+    crypto_tmp.save()
+
+    let data_week = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=7',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+
+    crypto_tmp.periods.last_week.opening_prices = []
+    crypto_tmp.periods.last_week.highest_prices = []
+    crypto_tmp.periods.last_week.lowest_prices = []
+    crypto_tmp.periods.last_week.closing_rates = []
+
+    for (let i=0;i<data_week.length;i=i+6){
+      crypto_tmp.periods.last_week.opening_prices.push(data_week[i][1])
+      crypto_tmp.periods.last_week.highest_prices.push(data_week[i][2])
+      crypto_tmp.periods.last_week.lowest_prices.push(data_week[i][3])
+      crypto_tmp.periods.last_week.closing_rates.push(data_week[i][4])
+    }
+
+    let data_monthly = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=30',{
+      method:'GET',
+    }).then(resp => resp.json())
+      .catch(e => console.log(error))
+    crypto_tmp.periods.last_month.opening_prices = []
+    crypto_tmp.periods.last_month.highest_prices = []
+    crypto_tmp.periods.last_month.lowest_prices = []
+    crypto_tmp.periods.last_month.closing_rates = []
+
+    for (let i=0;i<data_monthly.length;i=i+6){
+      crypto_tmp.periods.last_month.opening_prices.push(data_monthly[i][1])
+      crypto_tmp.periods.last_month.highest_prices.push(data_monthly[i][2])
+      crypto_tmp.periods.last_month.lowest_prices.push(data_monthly[i][3])
+      crypto_tmp.periods.last_month.closing_rates.push(data_monthly[i][4])
+    }
+    */
+
+    //crypto_tmp.save()
+    console.log('DONE')
+}
 
 const refreshCryptoDB = async () => {
 
-  let resp_tmp = await CoinGeckoClient.coins.all({per_page:200, page:1, localization:false})
-                        .catch(error => console.log(error))
+  let coincap_datas = await fetch('http://api.coincap.io/v2/assets?limit=200&offset=0', {
+                          method:'GET',
+                        }).then(resp => resp.json())
+  let offset = 0;
+  let crypto_list = []
 
-  let crypto_list = [];
-  let page_number = 1;
+  while (coincap_datas.data.length===200){
+    console.log(coincap_datas.data.length, offset)
+    coincap_datas = await fetch('http://api.coincap.io/v2/assets?limit=200&offset='+offset, {
+                            method:'GET',
+                          }).then(resp => resp.json())
 
-  while (resp_tmp.data.length === 200){
+    for (item in coincap_datas.data){
 
-    resp_tmp = await CoinGeckoClient.coins.all({per_page:200, page:page_number})
-                          .catch(error => console.log(error))
-
-    for(item in resp_tmp){
-      let obj = resp_tmp[item]
-      if (obj !== undefined){
-
-        for (item_2 in obj){
-          let obj_2 = obj[item_2]
-            if (obj_2 !== undefined && obj_2.id !== undefined){
-
-              await Crypto.findOne({
-                id: obj_2.id
-              }).then(async crypto => {
-                if (!crypto){
-                  let url, id, symbol, name;
-                  if (obj_2.image) url = obj_2.image
-                  if (obj_2.id) id = obj_2.id
-                  if (obj_2.name) name = obj_2.name
-                  if (obj_2.symbol) symbol = obj_2.symbol
-                  const newCrypto = await new Crypto({
-                    id: id,
-                    symbol: symbol,
-                    name: name,
-                    logo: url
-                  });
-                  newCrypto.save()
-                  crypto_list.push(obj_2.id)
-                }
-              })
-              .catch(error => console.log(error))
-            }
-          }
+      await Crypto.findOne({
+        $or:[{id: coincap_datas.data[item].id}, {name: coincap_datas.data[item].name}, {name: coincap_datas.data[item].symbol}]
+      }).then(async crypto => {
+        if (!crypto){
+          let id, symbol, name;
+          let url = 'https://static.coincap.io/assets/icons/'+coincap_datas.data[item].symbol.toLowerCase()+'@2x.png'
+          if (coincap_datas.data[item].id) id = coincap_datas.data[item].id
+          if (coincap_datas.data[item].name) name = coincap_datas.data[item].name
+          if (coincap_datas.data[item].symbol) symbol = coincap_datas.data[item].symbol
+          const newCrypto = await new Crypto({
+            id: id,
+            symbol: symbol,
+            name: name,
+            logo: url
+          });
+          await newCrypto.save()
+          console.log(newCrypto)
+          //crypto_list.push(coincap_datas.data[item].id)
         }
-      }
-      page_number++;
+      })
+
     }
+
+    offset = offset+coincap_datas.data.length
+  }
 
   console.log('Crypto DB refreshed '+crypto_list)
 
@@ -66,84 +233,61 @@ const refreshCryptoValues = async () => {
     is_authorized: true
   }).then(async crypto => {
     for (item in crypto){
-      let crypto_tmp = crypto[item]
-
-      let resp_tmp;
-      let ohlc_daily = [];
-      let ohlc_hourly = [];
-      let ohlc_minute = [];
-
-      resp_tmp = await CoinGeckoClient.coins.fetch(crypto_tmp.id, {localization:false, sparkline: false});
-
-      if (resp_tmp.data.market_data.current_price.eur) crypto_tmp.actual_price = resp_tmp.data.market_data.current_price.eur
-      if (resp_tmp.data.market_data.price_change_24h) crypto_tmp.periods._1d = resp_tmp.data.market_data.price_change_24h
-      if (resp_tmp.data.market_data.high_24h.eur) crypto_tmp.highest_price_day = resp_tmp.data.market_data.high_24h.eur
-      if (resp_tmp.data.market_data.low_24h.eur) crypto_tmp.lowest_price_day = resp_tmp.data.market_data.low_24h.eur
-      if (resp_tmp.data.market_data.market_cap.eur) crypto_tmp.market_cap = resp_tmp.data.market_data.market_cap.eur
-      if (resp_tmp.data.market_data.circulating_supply.eur) crypto_tmp.circulating_supply = resp_tmp.data.market_data.circulating_supply.eur
-
-      let data_day = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=1',{
-        method:'GET',
-      }).then(resp => resp.json())
-        .catch(e => console.log(error))
-
-      crypto_tmp.periods.last_24h.opening_prices = []
-      crypto_tmp.periods.last_24h.highest_prices = []
-      crypto_tmp.periods.last_24h.lowest_prices = []
-      crypto_tmp.periods.last_24h.closing_rates = []
-
-      for (price in data_day){
-        crypto_tmp.periods.last_24h.opening_prices.push(data_day[price][1])
-        crypto_tmp.periods.last_24h.highest_prices.push(data_day[price][2])
-        crypto_tmp.periods.last_24h.lowest_prices.push(data_day[price][3])
-        crypto_tmp.periods.last_24h.closing_rates.push(data_day[price][4])
-      }
-      crypto_tmp.save()
-
-      let data_week = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=7',{
-        method:'GET',
-      }).then(resp => resp.json())
-        .catch(e => console.log(error))
-
-      crypto_tmp.periods.last_week.opening_prices = []
-      crypto_tmp.periods.last_week.highest_prices = []
-      crypto_tmp.periods.last_week.lowest_prices = []
-      crypto_tmp.periods.last_week.closing_rates = []
-
-      for (let i=0;i<data_week.length;i=i+6){
-        crypto_tmp.periods.last_week.opening_prices.push(data_week[i][1])
-        crypto_tmp.periods.last_week.highest_prices.push(data_week[i][2])
-        crypto_tmp.periods.last_week.lowest_prices.push(data_week[i][3])
-        crypto_tmp.periods.last_week.closing_rates.push(data_week[i][4])
-      }
-
-      let data_monthly = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=30',{
-        method:'GET',
-      }).then(resp => resp.json())
-        .catch(e => console.log(error))
-      crypto_tmp.periods.last_month.opening_prices = []
-      crypto_tmp.periods.last_month.highest_prices = []
-      crypto_tmp.periods.last_month.lowest_prices = []
-      crypto_tmp.periods.last_month.closing_rates = []
-
-      for (let i=0;i<data_monthly.length;i=i+6){
-        crypto_tmp.periods.last_month.opening_prices.push(data_monthly[i][1])
-        crypto_tmp.periods.last_month.highest_prices.push(data_monthly[i][2])
-        crypto_tmp.periods.last_month.lowest_prices.push(data_monthly[i][3])
-        crypto_tmp.periods.last_month.closing_rates.push(data_monthly[i][4])
-      }
-
-      crypto_tmp.save()
-
-      crypto_list.push(crypto_tmp.id)
+      updateCryptoValues(crypto[item])
+      crypto_list.push(crypto[item].id)
     }
   })
   .catch(error => console.log(error))
   console.log('Crypto values refreshed : '+crypto_list)
 
 
-  setInterval(refreshCryptoValues, 3600000); // 1 update per hour
-
+  //setInterval(refreshCryptoValues, 3600000); // 1 update per hour
 };
 
-module.exports = { refreshCryptoDB, refreshCryptoValues }
+const sendAuthorizedCryptos = async (token) => {
+  if (token === undefined) {
+    let datas = await Crypto.find({
+      is_authorized: true
+    }).then(crypto => {
+      return crypto
+    })
+    .catch(err => {
+      console.log(err);
+      return null
+    })
+    return datas
+  }
+  else {
+    let verifiedJwt = '';
+    try {
+      verifiedJwt = jwt.verify(token, keys.secretOrKey);
+    } catch (e) {
+      console.log(e)
+      return e
+    }
+
+    let user_tmp;
+    let crypto_list = [];
+
+    await User.findOne({
+      _id: verifiedJwt.id
+    }).then(user => {
+      user_tmp = user;
+    })
+
+    for(item in user_tmp.cryptos){
+      let obj = user_tmp.cryptos[item]
+
+      await Crypto.findOne({$and:[{id: obj}, {is_authorized:true}]
+      }).then(async crypto => {
+        if (crypto) crypto_list.push(crypto)
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    }
+    return crypto_list
+  }
+}
+
+module.exports = { refreshCryptoDB, refreshCryptoValues, updateCryptoValues, sendAuthorizedCryptos }

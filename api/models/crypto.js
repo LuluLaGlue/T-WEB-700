@@ -49,12 +49,12 @@ const CryptoSchema = new Schema({
     required: false,
     default: 0
   },
+  price_change_24h: {
+    type: Number,
+    required: false,
+    default: 0
+  },
   periods: {
-    _1d: {
-      type: Number,
-      required : false,
-      default: 0
-    },
     last_24h: {
       opening_prices:{
         type: [Number],
@@ -100,6 +100,72 @@ const CryptoSchema = new Schema({
       }
     },
     last_month: {
+      opening_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      highest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      lowest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      closing_rates:{
+        type: [Number],
+        required: false,
+        default: [0]
+      }
+    },
+    last_2h: {
+      opening_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      highest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      lowest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      closing_rates:{
+        type: [Number],
+        required: false,
+        default: [0]
+      }
+    },
+    last_48h: {
+      opening_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      highest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      lowest_prices:{
+        type: [Number],
+        required: false,
+        default: [0]
+      },
+      closing_rates:{
+        type: [Number],
+        required: false,
+        default: [0]
+      }
+    },
+    last_60d: {
       opening_prices:{
         type: [Number],
         required: false,

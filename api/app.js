@@ -58,10 +58,14 @@ app.use(articles_route);
 
 const crypto_route = require("./routes/crypto_routes")
 const crypto_update = require('./config/cryptos.js');
+const jwt = require("jsonwebtoken");
 
 app.use(crypto_route);
 crypto_update.refreshCryptoDB();
-crypto_update.refreshCryptoValues();
+
+
+const sockets_loader = require("./config/sockets")
+sockets_loader.socket_manager(io);
 
 app.listen(PORT, function () {
   console.log("Server is running on Port: " + PORT);
@@ -69,15 +73,6 @@ app.listen(PORT, function () {
 
 server.listen(SOCKET_PORT, () => console.log(PORT + ' Server started'))
 
-io.on('connection', (socket) => {
 
-  socket.on('disconnect', () => {
-    console.log(socket.id + ' disconnected');
-  });
-
-  console.log(socket.id)
-  console.log('Client connected')
-
-  io.emit('chat message', 'Emit string data');
-
-})
+let date = new Date()
+let date2 = new Date()

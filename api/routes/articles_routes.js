@@ -43,6 +43,7 @@ router.get('/articles', (req, res) => {
                       id: value.guid,
                       title: value.title,
                       src: value.link,
+                      description: value.description,
                       img: value['media:content']
                     })
                   }
@@ -55,6 +56,7 @@ router.get('/articles', (req, res) => {
                     id: value.guid,
                     title: value.title,
                     src: value.link,
+                    description: value.description,
                     img: value['media:content']
                   })
                 }
@@ -79,6 +81,7 @@ router.get('/articles', (req, res) => {
                         id: value.guid,
                         title: value.title,
                         src: value.link,
+                        description: value.description,
                         img: value['media:content']
                       })
                     }
@@ -91,6 +94,7 @@ router.get('/articles', (req, res) => {
                       id: value.guid,
                       title: value.title,
                       src: value.link,
+                      description: value.description,
                       img: value['media:content']
                     })
                   }
@@ -111,6 +115,7 @@ router.get('/articles', (req, res) => {
             id: value.guid,
             title: value.title,
             src: value.link,
+            description: value.description,
             img: value['media:content']
           })
         })
