@@ -5,7 +5,6 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
 
-
 const Crypto_row = props => (
     <tr class="list-group-item-action">
         <th class="align-middle py-4" scope="row">
@@ -25,29 +24,30 @@ const Crypto_row = props => (
 )
 
 export default class CryptoList extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            cryptos: []
-        };
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      cryptos: [],
+    };
+  }
 
-    componentDidMount() {
-        axios.get(
-            'http://localhost:3100/cryptos'
-        ).then(
-            response => {
-                this.setState({ cryptos: response.data });
-                return true
-            }
-        ).catch(function (error) { console.log(error); })
-    }
+  componentDidMount() {
+    axios
+      .get("http://localhost:3100/cryptos")
+      .then((response) => {
+        this.setState({ cryptos: response.data });
+        return true;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
 
-    cryptoList() {
-        return this.state.cryptos.list.map(function (currentCrypto, i) {
-            return <Crypto_row crypto={currentCrypto} key={i} />
-        })
-    }
+  cryptoList() {
+    return this.state.cryptos.list.map(function (currentCrypto, i) {
+      return <Crypto_row crypto={currentCrypto} key={i} />;
+    });
+  }
 
 
     render() {
@@ -95,5 +95,6 @@ export default class CryptoList extends Component {
                 </table>
             </div>
         )
-    }
+    );
+  }
 }

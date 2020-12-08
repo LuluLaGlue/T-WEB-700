@@ -16,7 +16,7 @@ const UpdateProfile = (props) => {
   useEffect(() => {
     const userInfo = async () =>
       await axios
-        .get("http://localhost:3000/users/profile", config)
+        .get("http://localhost:3100/users/profile", config)
         .then((res) => {
           console.log("res", res);
           setUsername(res);
@@ -34,7 +34,7 @@ const UpdateProfile = (props) => {
     };
 
     await axios
-      .patch(`http://localhost:3000/users/profile`, data, config)
+      .put(`http://localhost:3100/users/profile`, data, config)
       .then((response) => {
         props.onHide();
       })
