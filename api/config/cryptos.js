@@ -27,6 +27,7 @@ const updateCryptoValues = async crypto => {
 
     crypto_tmp.actual_price = parseFloat(resp_tmp.data[0].priceUsd)/rateUsd
     crypto_tmp.market_cap = parseFloat(resp_tmp.data[0].marketCapUsd)/rateUsd
+    crypto_tmp.rank = parseInt(resp_tmp.data[0].rank)
     crypto_tmp.circulating_supply = parseFloat(resp_tmp.data[0].supply)
     crypto_tmp.price_change_24h = parseFloat(resp_tmp.data[0].changePercent24Hr)
 
@@ -43,7 +44,7 @@ const updateCryptoValues = async crypto => {
     crypto_tmp.periods.last_2h.highest_prices = []
     crypto_tmp.periods.last_2h.lowest_prices = []
     crypto_tmp.periods.last_2h.closing_rates = []
-    for (i = (test_tmp.data.length-121); i<test_tmp.data.length-1;i++){
+    for (i = (test_tmp.data.length-120); i<test_tmp.data.length;i++){
       crypto_tmp.periods.last_2h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
       crypto_tmp.periods.last_2h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
       crypto_tmp.periods.last_2h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
@@ -88,6 +89,9 @@ const updateCryptoValues = async crypto => {
     crypto_tmp.periods.last_month.highest_prices = []
     crypto_tmp.periods.last_month.lowest_prices = []
     crypto_tmp.periods.last_month.closing_rates = []
+
+    crypto_tmp.lowest_price_day = test_tmp.data[test_tmp.data.length-1].low
+    crypto_tmp.highest_price_day = test_tmp.data[test_tmp.data.length-1].high
 
     for (i = (test_tmp.data.length-30); i<test_tmp.data.length;i++){
       crypto_tmp.periods.last_month.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
@@ -176,7 +180,6 @@ const updateCryptoValues = async crypto => {
     */
 
     //crypto_tmp.save()
-    console.log('DONE')
 }
 
 const refreshCryptoDB = async () => {
@@ -199,8 +202,9 @@ const refreshCryptoDB = async () => {
         $or:[{id: coincap_datas.data[item].id}, {name: coincap_datas.data[item].name}, {name: coincap_datas.data[item].symbol}]
       }).then(async crypto => {
         if (!crypto){
-          let id, symbol, name;
+          let id, symbol, name, rank;
           let url = 'https://static.coincap.io/assets/icons/'+coincap_datas.data[item].symbol.toLowerCase()+'@2x.png'
+          if (coincap_datas.data[item].rank) rank = parseInt(coincap_datas.data[item].rank)
           if (coincap_datas.data[item].id) id = coincap_datas.data[item].id
           if (coincap_datas.data[item].name) name = coincap_datas.data[item].name
           if (coincap_datas.data[item].symbol) symbol = coincap_datas.data[item].symbol
@@ -208,11 +212,11 @@ const refreshCryptoDB = async () => {
             id: id,
             symbol: symbol,
             name: name,
-            logo: url
+            logo: url,
+            rank: rank
           });
           await newCrypto.save()
-          console.log(newCrypto)
-          //crypto_list.push(coincap_datas.data[item].id)
+          crypto_list.push(id)
         }
       })
 
@@ -239,7 +243,6 @@ const refreshCryptoValues = async () => {
   })
   .catch(error => console.log(error))
   console.log('Crypto values refreshed : '+crypto_list)
-
 
   //setInterval(refreshCryptoValues, 3600000); // 1 update per hour
 };
@@ -288,6 +291,59 @@ const sendAuthorizedCryptos = async (token) => {
     }
     return crypto_list
   }
+}
+
+const toUsdRate = async (crypto) => {
+
+  let euros = await fetch('http://api.coincap.io/v2/rates/euro',{
+    method:'GET',
+  }).then(resp => resp.json())
+    .catch(e => console.log(error))
+
+  let rateUsd = parseFloat(euros.data.rateUsd)
+
+  let datas = await Crypto.find({
+    id:crypto.id
+  }).then(crypto => {
+    let crypto_tmp = crypto
+    crypto_tmp.actual_price = crypto_tmp.actual_price*rateUsd
+    crypto_tmp.lowest_price_day = crypto_tmp.lowest_price_day*rateUsd
+    crypto_tmp.highest_price_day = crypto_tmp.highest_price_day*rateUsd
+
+    if(crypto_tmp.periods.last_24h.length > 0){
+      for (item in crypto_tmp.periods.last_24h){
+        crypto_tmp.periods.last_24h[item] = crypto_tmp.periods.last_24h[item]*rateUsd
+      }
+    }
+    if(crypto_tmp.periods.last_week.length > 0){
+      for (item in crypto_tmp.periods.last_week){
+        crypto_tmp.periods.last_week[item] = crypto_tmp.periods.last_week[item]*rateUsd
+      }
+    }
+    if(crypto_tmp.periods.last_month.length > 0){
+      for (item in crypto_tmp.periods.last_month){
+        crypto_tmp.periods.last_month[item] = crypto_tmp.periods.last_month[item]*rateUsd
+      }
+    }
+    if(crypto_tmp.periods.last_2h.length > 0){
+      for (item in crypto_tmp.periods.last_2h){
+        crypto_tmp.periods.last_2h[item] = crypto_tmp.periods.last_2h[item]*rateUsd
+      }
+    }
+    if(crypto_tmp.periods.last_48h.length > 0){
+      for (item in crypto_tmp.periods.last_48h){
+        crypto_tmp.periods.last_48h[item] = crypto_tmp.periods.last_48h[item]*rateUsd
+      }
+    }
+    if(crypto_tmp.periods.last_60d.length > 0){
+      for (item in crypto_tmp.periods.last_60d){
+        crypto_tmp.periods.last_60d[item] = crypto_tmp.periods.last_60d[item]*rateUsd
+      }
+    }
+
+    return crypto_tmp
+  })
+  return crypto_tmp
 }
 
 module.exports = { refreshCryptoDB, refreshCryptoValues, updateCryptoValues, sendAuthorizedCryptos }

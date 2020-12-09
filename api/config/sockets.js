@@ -96,28 +96,41 @@ const socket_manager = (io) => {
       })
     })
 
+    socket.on('ask_search', async (input) => {
+      if (input.length>2){
+        let datas = await Crypto.find({$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]
+        }).then(resp => resp)
+        socket.emit('get_search', {message: 'Search', list:datas, method:'SOCKET'})
+      }
+    })
 
-    // Should be call api per period
     socket.on('request_period', async (message) => {
-      /*try {
+      try {
         verifiedJwt = jwt.verify(message.token, keys.secretOrKey);
       } catch (e) {
         console.log(e)
         return e
-      }*/
+      }
 
-      let datas = await Crypto.find({$or:[{id: new RegExp('^'+message.crypto, 'i') }, {name: new RegExp('^'+message.crypto, 'i')}]
-      }).then(resp => resp)
-
-      socket.emit('send_period', {message: 'Search', list:datas, method:'SOCKET'})
+      await Crypto.findOne({
+        id: message.crypto_id
+      }).then( crypto => {
+        socket.emit('send_period', {message: 'Period', list:crypto.periods[message.period], method:'SOCKET'})
+      })
     })
 
-    socket.on('ask_search', async (input) => {
-      if (input.length>2){
-        let datas = await Crypto.find({$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}]
-        }).then(resp => resp)
-        socket.emit('get_search', {message: 'Search', list:datas, method:'SOCKET'})
+    socket.on('change_rate', async (message) => {
+      if(message.token !== undefined){
+        let datas = await crypto_update.sendAuthorizedCryptos(message.token).then(resp => resp)
+        socket.emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
       }
+      else {
+        let datas = await crypto_update.sendAuthorizedCryptos(undefined).then(resp => resp)
+        socket.emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
+      }
+
+
+      socket.emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
     })
 
     console.log('Client connected ' + socket.id)

@@ -24,6 +24,11 @@ const CryptoSchema = new Schema({
     type: {},
     required: false
   },
+  rank: {
+    type: Number,
+    required: false,
+    default: 0
+  },
   actual_price: {
     type: Number,
     required: false,

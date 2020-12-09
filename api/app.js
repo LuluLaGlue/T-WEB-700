@@ -72,7 +72,3 @@ app.listen(PORT, function () {
 });
 
 server.listen(SOCKET_PORT, () => console.log(PORT + ' Server started'))
-
-
-let date = new Date()
-let date2 = new Date()
