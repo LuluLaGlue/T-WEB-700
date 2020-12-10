@@ -1,30 +1,58 @@
 import React, { Component } from 'react';
+import Chart from 'chart.js';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import { useEffect } from 'react';
 
-const Crypto_row = props => (
-    <tr class="list-group-item-action">
-        <td class="align-middle font-weight-bold">{props.crypto.rank}</td>
-        <th class="align-middle py-4" scope="row">
-            <Link to={"/detail/" + props.crypto.id} className="text-body">
-                <img class="mr-1" id="crypto-image" src={props.crypto.logo}></img>
-                {props.crypto.name}
-            </Link>
-        </th>
-        <td class="align-middle">€{props.crypto.actual_price.toFixed(4)}</td>
-        <td class={props.crypto.price_change_24h > 0 ? 'text-success align-middle' : 'text-danger align-middle'}>
-            <span id="caret">{props.crypto.price_change_24h > 0 ? '▲' : '▼'}</span>
-            {props.crypto.price_change_24h.toFixed(2)}%
-        </td>
-        <td class="align-middle">€{props.crypto.circulating_supply}</td>
-        <td class="align-middle">{props.crypto.circulating_supply}</td>
-        <td class="align-middle">€{props.crypto.market_cap.toFixed(0)}</td>
-    </tr>
-)
+
+function Crypto_row(props) {
+    useEffect(() => {
+        const ctx = document.getElementById(props.crypto.rank);
+        const data_list = props.crypto.periods.last_60d.opening_prices;
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: Array.from(Array(data_list.length).keys()),
+                datasets: [{
+                    data: data_list,
+                }],
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    enabled: false
+                }
+            }
+        });
+    });
+
+    return (
+        <tr class="list-group-item-action">
+            <td class="align-middle font-weight-bold">{props.crypto.rank}</td>
+            <th class="align-middle py-4" scope="row">
+                <Link to={"/detail/" + props.crypto.id} className="text-body">
+                    <img class="mr-1" id="crypto-image" src={props.crypto.logo}></img>
+                    {props.crypto.name}
+                </Link>
+            </th>
+            <td class="align-middle">€{props.crypto.actual_price.toFixed(4)}</td>
+            <td class={props.crypto.price_change_24h > 0 ? 'text-success align-middle' : 'text-danger align-middle'}>
+                <span id="caret">{props.crypto.price_change_24h > 0 ? '▲' : '▼'}</span>
+                {props.crypto.price_change_24h.toFixed(2)}%
+            </td>
+            <td class="align-middle">€{props.crypto.circulating_supply}</td>
+            <td class="align-middle">{props.crypto.circulating_supply}</td>
+            <td class="align-middle">€{props.crypto.market_cap.toFixed(0)}</td>
+            <td><canvas id={props.crypto.rank} width="400" height="400"></canvas></td>
+        </tr>
+    )
+}
 
 
 export default class CryptoList extends Component {
@@ -95,6 +123,7 @@ export default class CryptoList extends Component {
                                         <span>Supply <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
                                     </OverlayTrigger>
                                 </th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
