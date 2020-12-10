@@ -138,7 +138,7 @@ router.post('/logout', (req, res) => {
   }
   const token = req.header("authorization");
   if (token === undefined) {
-    return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+    return res.status(401).json({ message: "unauthorized", error: "no token" })
   }
 
   try {
@@ -160,7 +160,7 @@ router.get('/profile', (req, res) => {
   }
   const token = req.header("authorization");
   if (token === undefined) {
-    return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+    return res.status(401).json({ message: "unauthorized", error: "no token" })
   }
   let verifiedJwt = '';
   try {
@@ -186,7 +186,7 @@ router.put('/profile', (req, res) => {
   }
   const token = req.header("authorization");
   if (token === undefined) {
-    return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+    return res.status(401).json({ message: "unauthorized", error: "no token" })
   }
   let verifiedJwt = '';
   try {
@@ -271,8 +271,8 @@ router.delete('/delete', (req, res) => {
   })
 })
 
-router.get('/success', (req, res) => res.send(userProfile));
-router.get('/error', (req, res) => res.send("error logging in"));
+router.get('/success', (req, res) => res.json(userProfile));
+router.get('/error', (req, res) => res.json("error logging in"));
 passport.serializeUser(function (user, cb) {
   cb(null, user);
 });
