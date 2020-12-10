@@ -415,6 +415,9 @@ router.route('/validrequests')
         id: req.body.crypto_list
       }).then(async crypto => {
           crypto_update.updateCryptoValues(crypto)
+          crypto.is_authorized = true;
+          crypto.is_requested = false;
+          crypto.save()
       })
       .catch(err => {
         console.log(err);
@@ -428,6 +431,9 @@ router.route('/validrequests')
           id: obj
         }).then(async crypto => {
           crypto_update.updateCryptoValues(crypto)
+          crypto.is_authorized = true;
+          crypto.is_requested = false;
+          crypto.save()
         })
         .catch(err => {
           console.log(err);
