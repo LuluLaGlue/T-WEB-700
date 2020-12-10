@@ -8,10 +8,10 @@ import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
 const Crypto_row = props => (
     <tr class="list-group-item-action">
-        <td class="align-middle">{props.crypto.rank}</td>
+        <td class="align-middle font-weight-bold">{props.crypto.rank}</td>
         <th class="align-middle py-4" scope="row">
             <Link to={"/detail/" + props.crypto.id} className="text-body">
-                <img class="mr-1" src={props.crypto.logo}></img>
+                <img class="mr-1" id="crypto-image" src={props.crypto.logo}></img>
                 {props.crypto.name}
             </Link>
         </th>
@@ -28,30 +28,30 @@ const Crypto_row = props => (
 
 
 export default class CryptoList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      cryptos: [],
-    };
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            cryptos: [],
+        };
+    }
 
-  componentDidMount() {
-    axios
-      .get("http://localhost:3100/cryptos")
-      .then((response) => {
-        this.setState({ cryptos: response.data });
-        return true;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
+    componentDidMount() {
+        axios
+            .get("http://localhost:3100/cryptos")
+            .then((response) => {
+                this.setState({ cryptos: response.data });
+                return true;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
 
-  cryptoList() {
-    return this.state.cryptos.list.map(function (currentCrypto, i) {
-      return <Crypto_row crypto={currentCrypto} key={i} />;
-    });
-  }
+    cryptoList() {
+        return this.state.cryptos.list.map(function (currentCrypto, i) {
+            return <Crypto_row crypto={currentCrypto} key={i} />;
+        });
+    }
 
 
     render() {
@@ -82,17 +82,17 @@ export default class CryptoList extends Component {
                                 <th scope="col">24h</th>
                                 <th scope="col">
                                     <OverlayTrigger placement="bottom" overlay={marketTooltip}>
-                                    <span>Market cap <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
+                                        <span>Market cap <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
                                     </OverlayTrigger>
                                 </th>
                                 <th scope="col">
                                     <OverlayTrigger placement="bottom" overlay={volumeTooltip}>
-                                    <span>Volume <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
+                                        <span>Volume <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
                                     </OverlayTrigger>
                                 </th>
                                 <th scope="col">
                                     <OverlayTrigger placement="bottom" overlay={supplyTooltip}>
-                                    <span>Supply <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
+                                        <span>Supply <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
                                     </OverlayTrigger>
                                 </th>
                             </tr>
@@ -104,6 +104,5 @@ export default class CryptoList extends Component {
                 </div>
             </div>
         )
-    );
-  }
+    }
 }

@@ -16,3 +16,8 @@ code {
   font-size: 0.7rem;
   margin-right: .2rem;
 }
+
+#crypto-image {
+  width: 25px;
+  height: 25px;
+}
