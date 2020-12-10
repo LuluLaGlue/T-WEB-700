@@ -3,6 +3,7 @@ import axios from "axios";
 import { Card, Button } from "react-bootstrap";
 import Select from "react-select";
 import "./press.css";
+import Container from "react-bootstrap/Container";
 
 const Press = () => {
   const [data, setData] = useState([
@@ -69,7 +70,7 @@ const Press = () => {
   }; */
   console.log("newTag", newTag);
   return (
-    <>
+    <Container>
       <h2 className="title">What's new ?</h2>
       Search by key word :
       <div className="search">
@@ -117,7 +118,7 @@ const Press = () => {
           })}
         </div>
       </div>
-    </>
+    </Container>
   );
 };
 
