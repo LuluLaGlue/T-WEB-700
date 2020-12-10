@@ -6,7 +6,6 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
-
 const Crypto_row = props => (
     <tr class="list-group-item-action">
         <td class="align-middle">{props.crypto.rank}</td>
@@ -29,29 +28,30 @@ const Crypto_row = props => (
 
 
 export default class CryptoList extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            cryptos: []
-        };
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      cryptos: [],
+    };
+  }
 
-    componentDidMount() {
-        axios.get(
-            'http://localhost:3100/cryptos'
-        ).then(
-            response => {
-                this.setState({ cryptos: response.data });
-                return true
-            }
-        ).catch(function (error) { console.log(error); })
-    }
+  componentDidMount() {
+    axios
+      .get("http://localhost:3100/cryptos")
+      .then((response) => {
+        this.setState({ cryptos: response.data });
+        return true;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
 
-    cryptoList() {
-        return this.state.cryptos.list.map(function (currentCrypto, i) {
-            return <Crypto_row crypto={currentCrypto} key={i} />
-        })
-    }
+  cryptoList() {
+    return this.state.cryptos.list.map(function (currentCrypto, i) {
+      return <Crypto_row crypto={currentCrypto} key={i} />;
+    });
+  }
 
 
     render() {
@@ -104,5 +104,6 @@ export default class CryptoList extends Component {
                 </div>
             </div>
         )
-    }
+    );
+  }
 }
