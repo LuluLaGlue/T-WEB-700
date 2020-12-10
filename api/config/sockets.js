@@ -18,7 +18,7 @@ const socket_manager = (io) => {
     listClients.push(socket)
     listTokens.push({socket: socket.id, token:undefined})
 
-    socket.on('connection', async (message) => {
+    socket.on('connection', async (message) => { // On window refresh
 
       let socket_true = false
       for (item in listTokens){
@@ -41,7 +41,7 @@ const socket_manager = (io) => {
 
     });
 
-    socket.on('add_crypto', async (message) => {
+    socket.on('add_crypto', async (message) => { // User profil update
       try {
         verifiedJwt = jwt.verify(message.token, keys.secretOrKey);
       } catch (e) {
@@ -64,7 +64,7 @@ const socket_manager = (io) => {
       })
     })
 
-    socket.on('remove_crypto', async (message) => {
+    socket.on('remove_crypto', async (message) => { // User profil update
       try {
         verifiedJwt = jwt.verify(message.token, keys.secretOrKey);
       } catch (e) {
@@ -80,7 +80,7 @@ const socket_manager = (io) => {
       })
     })
 
-    socket.on('request_crypto', async (message) => {
+    socket.on('request_crypto', async (message) => { // For users
       try {
         verifiedJwt = jwt.verify(message.token, keys.secretOrKey);
       } catch (e) {
@@ -96,7 +96,7 @@ const socket_manager = (io) => {
       })
     })
 
-    socket.on('ask_search', async (input) => {
+    socket.on('ask_search', async (input) => { // For users or admin
       if (input.length>2){
         let datas = await Crypto.find({$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]
         }).then(resp => resp)
@@ -104,7 +104,7 @@ const socket_manager = (io) => {
       }
     })
 
-    socket.on('request_period', async (message) => {
+    socket.on('request_period', async (message) => { // For users
       try {
         verifiedJwt = jwt.verify(message.token, keys.secretOrKey);
       } catch (e) {
@@ -119,27 +119,24 @@ const socket_manager = (io) => {
       })
     })
 
-    socket.on('change_rate', async (message) => {
-      if(message.token !== undefined){
+    socket.on('change_rate', async (message) => { // For users
+      if (message.rate === 'eur'){
         let datas = await crypto_update.sendAuthorizedCryptos(message.token).then(resp => resp)
-        socket.emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
+        socket.emit('refresh_cryptos', {message: 'RateEur', list:datas, method:'SOCKET'})
       }
-      else {
-        let datas = await crypto_update.sendAuthorizedCryptos(undefined).then(resp => resp)
-        socket.emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
+      else if (message.rate === 'usd'){
+        let datas = await crypto_update.sendAuthorizedCryptos(message.token).then(resp => resp)
+        let crypto_usd = []
+        for (item in datas){
+          crypto_usd.push(toUsdRate(datas.item))
+        }
+        socket.emit('refresh_cryptos', {message: 'RateUsd', list:crypto_usd, method:'SOCKET'})
       }
 
 
-      socket.emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
     })
 
     console.log('Client connected ' + socket.id)
-
-    /* Sockets to do :
-    -Request per period
-    -Conversion usd/eur/other + period
-
-    */
 
   })
 

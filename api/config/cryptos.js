@@ -9,10 +9,6 @@ const updateCryptoValues = async crypto => {
 
     let crypto_tmp = crypto
 
-    let ohlc_daily = [];
-    let ohlc_hourly = [];
-    let ohlc_minute = [];
-
     let euros = await fetch('http://api.coincap.io/v2/rates/euro',{
       method:'GET',
     }).then(resp => resp.json())
@@ -30,10 +26,6 @@ const updateCryptoValues = async crypto => {
     crypto_tmp.rank = parseInt(resp_tmp.data[0].rank)
     crypto_tmp.circulating_supply = parseFloat(resp_tmp.data[0].supply)
     crypto_tmp.price_change_24h = parseFloat(resp_tmp.data[0].changePercent24Hr)
-
-    //crypto_tmp.lowest_price_day = resp_tmp.data.priceUsd
-    //crypto_tmp.highest_price_day = resp_tmp.data.priceUsd
-    //console.log(crypto_tmp)
 
     let test_tmp = await fetch('http://api.coincap.io/v2/candles?exchange=bitfinex&interval=m1&baseId='+crypto_tmp.id+'&quoteId=united-states-dollar',{
       method:'GET',
@@ -74,10 +66,10 @@ const updateCryptoValues = async crypto => {
     crypto_tmp.periods.last_24h.closing_rates = []
 
     for (i = (test_tmp.data.length-24); i<test_tmp.data.length;i++){
-      crypto_tmp.periods.last_60d.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
-      crypto_tmp.periods.last_60d.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
-      crypto_tmp.periods.last_60d.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
-      crypto_tmp.periods.last_60d.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+      crypto_tmp.periods.last_24h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+      crypto_tmp.periods.last_24h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+      crypto_tmp.periods.last_24h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+      crypto_tmp.periods.last_24h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
     }
 
     test_tmp = await fetch('http://api.coincap.io/v2/candles?exchange=bitfinex&interval=d1&baseId='+crypto_tmp.id+'&quoteId=united-states-dollar',{
@@ -125,61 +117,6 @@ const updateCryptoValues = async crypto => {
     }
 
     crypto_tmp.save()
-
-    /*
-    let data_day = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=1',{
-      method:'GET',
-    }).then(resp => resp.json())
-      .catch(e => console.log(error))
-
-    crypto_tmp.periods.last_24h.opening_prices = []
-    crypto_tmp.periods.last_24h.highest_prices = []
-    crypto_tmp.periods.last_24h.lowest_prices = []
-    crypto_tmp.periods.last_24h.closing_rates = []
-
-    for (price in data_day){
-      crypto_tmp.periods.last_24h.opening_prices.push(data_day[price][1])
-      crypto_tmp.periods.last_24h.highest_prices.push(data_day[price][2])
-      crypto_tmp.periods.last_24h.lowest_prices.push(data_day[price][3])
-      crypto_tmp.periods.last_24h.closing_rates.push(data_day[price][4])
-    }
-    crypto_tmp.save()
-
-    let data_week = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=7',{
-      method:'GET',
-    }).then(resp => resp.json())
-      .catch(e => console.log(error))
-
-    crypto_tmp.periods.last_week.opening_prices = []
-    crypto_tmp.periods.last_week.highest_prices = []
-    crypto_tmp.periods.last_week.lowest_prices = []
-    crypto_tmp.periods.last_week.closing_rates = []
-
-    for (let i=0;i<data_week.length;i=i+6){
-      crypto_tmp.periods.last_week.opening_prices.push(data_week[i][1])
-      crypto_tmp.periods.last_week.highest_prices.push(data_week[i][2])
-      crypto_tmp.periods.last_week.lowest_prices.push(data_week[i][3])
-      crypto_tmp.periods.last_week.closing_rates.push(data_week[i][4])
-    }
-
-    let data_monthly = await fetch('https://api.coingecko.com/api/v3/coins/'+crypto_tmp.id+'/ohlc?vs_currency=eur&days=30',{
-      method:'GET',
-    }).then(resp => resp.json())
-      .catch(e => console.log(error))
-    crypto_tmp.periods.last_month.opening_prices = []
-    crypto_tmp.periods.last_month.highest_prices = []
-    crypto_tmp.periods.last_month.lowest_prices = []
-    crypto_tmp.periods.last_month.closing_rates = []
-
-    for (let i=0;i<data_monthly.length;i=i+6){
-      crypto_tmp.periods.last_month.opening_prices.push(data_monthly[i][1])
-      crypto_tmp.periods.last_month.highest_prices.push(data_monthly[i][2])
-      crypto_tmp.periods.last_month.lowest_prices.push(data_monthly[i][3])
-      crypto_tmp.periods.last_month.closing_rates.push(data_monthly[i][4])
-    }
-    */
-
-    //crypto_tmp.save()
 }
 
 const refreshCryptoDB = async () => {
@@ -343,7 +280,7 @@ const toUsdRate = async (crypto) => {
 
     return crypto_tmp
   })
-  return crypto_tmp
+  return datas
 }
 
-module.exports = { refreshCryptoDB, refreshCryptoValues, updateCryptoValues, sendAuthorizedCryptos }
+module.exports = { refreshCryptoDB, refreshCryptoValues, updateCryptoValues, sendAuthorizedCryptos, toUsdRate }
