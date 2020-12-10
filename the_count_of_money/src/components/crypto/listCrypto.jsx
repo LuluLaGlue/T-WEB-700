@@ -12,21 +12,52 @@ import { useEffect } from 'react';
 function Crypto_row(props) {
     useEffect(() => {
         const ctx = document.getElementById(props.crypto.rank);
-        const data_list = props.crypto.periods.last_60d.opening_prices;
+        const data_list = props.crypto.periods.last_month.opening_prices;
         new Chart(ctx, {
             type: "line",
             data: {
                 labels: Array.from(Array(data_list.length).keys()),
                 datasets: [{
                     data: data_list,
+                    pointRadius: 0,
+                    fill: false,
+                    lineTension: 0,
                 }],
             },
             options: {
+                responsive:true,
+                maintainAspectRatio: false,
                 legend: {
                     display: false
                 },
                 tooltips: {
                     enabled: false
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            drawBorder: false,
+                            drawOnChartArea: false,
+                            drawTicks: false,
+                            color: '#dc3545',
+                        },
+                        ticks: {
+                            display: false,
+                        }
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            drawBorder: false,
+                            drawOnChartArea: false,
+                            drawTicks: false,
+                        },
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return '$' + value;
+                            },
+                            display: false,
+                        }
+                    }]
                 }
             }
         });
@@ -36,20 +67,21 @@ function Crypto_row(props) {
         <tr class="list-group-item-action">
             <td class="align-middle font-weight-bold">{props.crypto.rank}</td>
             <th class="align-middle py-4" scope="row">
-                <Link to={"/detail/" + props.crypto.id} className="text-body">
+                <Link to={"/detail/" + props.crypto.id} className="text-body text-decoration-none">
                     <img class="mr-1" id="crypto-image" src={props.crypto.logo}></img>
-                    {props.crypto.name}
+                    {props.crypto.name} <span class="text-muted font-weight-normal">{props.crypto.symbol}</span>
                 </Link>
             </th>
-            <td class="align-middle">€{props.crypto.actual_price.toFixed(4)}</td>
+            <td class="align-middle">€{new Intl.NumberFormat().format(props.crypto.actual_price.toFixed(4))}</td>
             <td class={props.crypto.price_change_24h > 0 ? 'text-success align-middle' : 'text-danger align-middle'}>
                 <span id="caret">{props.crypto.price_change_24h > 0 ? '▲' : '▼'}</span>
                 {props.crypto.price_change_24h.toFixed(2)}%
             </td>
-            <td class="align-middle">€{props.crypto.circulating_supply}</td>
-            <td class="align-middle">{props.crypto.circulating_supply}</td>
-            <td class="align-middle">€{props.crypto.market_cap.toFixed(0)}</td>
-            <td><canvas id={props.crypto.rank} width="400" height="400"></canvas></td>
+            <td class="align-middle">€{new Intl.NumberFormat().format(props.crypto.market_cap.toFixed(0))}</td>
+            <td class="align-middle">{new Intl.NumberFormat().format(props.crypto.circulating_supply.toFixed(0))} {props.crypto.symbol}</td>
+            <td class="chart-container">
+                <canvas id={props.crypto.rank} width="200" height="60"></canvas>
+            </td>
         </tr>
     )
 }
@@ -94,13 +126,9 @@ export default class CryptoList extends Component {
             Market Cap = Current Price x Circulating Supply</Tooltip>
         );
 
-        const volumeTooltip = props => (
-            <Tooltip {...props}>Volume, or trading volume, is the number of units traded in a market during a given time. It is a measurement of the number of individual units of an asset that changed hands during that period.</Tooltip>
-        );
-
         return (
             <div class="row justify-content-md-center">
-                <div className="col-9">
+                <div className="col-8">
                     <table class="table my-4">
                         <thead>
                             <tr>
@@ -114,16 +142,11 @@ export default class CryptoList extends Component {
                                     </OverlayTrigger>
                                 </th>
                                 <th scope="col">
-                                    <OverlayTrigger placement="bottom" overlay={volumeTooltip}>
-                                        <span>Volume <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
-                                    </OverlayTrigger>
-                                </th>
-                                <th scope="col">
                                     <OverlayTrigger placement="bottom" overlay={supplyTooltip}>
                                         <span>Supply <FontAwesomeIcon className="text-muted" icon={faInfoCircle} /></span>
                                     </OverlayTrigger>
                                 </th>
-                                <th></th>
+                                <th scope="col">Last month</th>
                             </tr>
                         </thead>
                         <tbody>
