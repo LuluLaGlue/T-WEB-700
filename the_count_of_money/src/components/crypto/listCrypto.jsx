@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -53,6 +53,10 @@ export default class CryptoList extends Component {
         });
     }
 
+  render() {
+    if (this.state.cryptos.list === undefined) {
+      return null;
+    }
 
     render() {
         if (this.state.cryptos.list === undefined) { return null }
@@ -66,9 +70,13 @@ export default class CryptoList extends Component {
             Market Cap = Current Price x Circulating Supply</Tooltip>
         );
 
-        const volumeTooltip = props => (
-            <Tooltip {...props}>Volume, or trading volume, is the number of units traded in a market during a given time. It is a measurement of the number of individual units of an asset that changed hands during that period.</Tooltip>
-        );
+    const volumeTooltip = (props) => (
+      <Tooltip {...props}>
+        Volume, or trading volume, is the number of units traded in a market
+        during a given time. It is a measurement of the number of individual
+        units of an asset that changed hands during that period.
+      </Tooltip>
+    );
 
         return (
             <div class="row justify-content-md-center">

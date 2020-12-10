@@ -26,10 +26,13 @@ const Press = () => {
         "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsam mollitia voluptas, quo iusto similique",
     },
   ]);
+  const token = localStorage.getItem("jwtToken");
+  console.log("token profil", token);
 
   const config = {
     headers: {
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjc3NmMyMjI1MmYwNGQwMGQwMGM0ZCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjA1ODU5NTY0LCJleHAiOjE2MDY0NjQzNjR9.VXAvnrf9GSQUhcZ39WARbMrj4CeBHlzp82c-x-nfBMg`,
+      token,
+      //Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjc3NmMyMjI1MmYwNGQwMGQwMGM0ZCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjA1ODU5NTY0LCJleHAiOjE2MDY0NjQzNjR9.VXAvnrf9GSQUhcZ39WARbMrj4CeBHlzp82c-x-nfBMg`,
     },
   };
   const [tag, setTag] = useState([]);
@@ -37,13 +40,17 @@ const Press = () => {
   useEffect(() => {
     const fetchdata = async () =>
       await axios
-        .get("http://localhost:3100/articles?params=", config)
+        .get(`${process.env.REACT_APP_API_URL}/articles?params=`, config)
         .then((res) => {
+          console.log("res", res);
           setData(res.data);
         });
     const getTag = async () =>
       await axios
-        .get(`http://localhost:3100/articles/list/categories`, config)
+        .get(
+          `${process.env.REACT_APP_API_URL}/articles/list/categories`,
+          config
+        )
         .then((result) => {
           setTag(result.data);
         });
@@ -53,7 +60,7 @@ const Press = () => {
 
   const getPressByTag = async () => {
     await axios
-      .get(`http://localhost:3100/articles?params=${newTag}`, config)
+      .get(`${process.env.REACT_APP_API_URL}/articles?params=${newTag}`, config)
       .then((res) => {
         console.log("res", res.data);
         /* res.data.map((i) => {
@@ -64,10 +71,6 @@ const Press = () => {
 
   let newTag = [];
 
-  /*   const updateTag = (e) => {
-    newTag.push(e);
-    console.log("newTag dans la fonction", newTag);
-  }; */
   console.log("newTag", newTag);
   return (
     <Container>
@@ -76,20 +79,17 @@ const Press = () => {
       <div className="search">
         <div className="select">
           <Select
-            options={tag.map((data) => {
-              return { value: data, label: data };
+            options={tag.map((dataMap) => {
+              return { value: dataMap, label: dataMap };
             })}
             isMulti
             isClearable
             className="basic-multi-select"
             onChange={(e) => {
-              let interm;
-              let iter;
-              for (iter in e) {
-                interm = e[iter].value;
-              }
-              newTag.push(interm);
+              //newTag.push(e.value);
+              newTag = e;
               console.log("test", newTag);
+              console.log("e", e);
             }}
           />
         </div>
