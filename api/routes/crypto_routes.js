@@ -14,7 +14,7 @@ router.route('/cryptos')
 
     const token = req.header("authorization");
     if (token === undefined) {
-      return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+      return res.status(401).json({ message: "unauthorized", error: "no token" })
     }
     let verifiedJwt = '';
     try {
@@ -29,10 +29,10 @@ router.route('/cryptos')
     }).then(crypto => {
       return res.status(200).json(crypto)
     })
-    .catch(err => {
-      console.log(err);
-      return res.json(err)
-    })
+      .catch(err => {
+        console.log(err);
+        return res.json(err)
+      })
   })
 
   .post(async function (req, res) {
@@ -52,18 +52,18 @@ router.route('/cryptos')
       return res.status(401).json({ message: "unauthorized", error: "token not valid" })
     }
 
-    for(item in req.body.crypto_list){
+    for (item in req.body.crypto_list) {
       let obj = req.body.crypto_list[item]
 
       await Crypto.findOne({
         id: obj
       }).then(async crypto => {
         let resp_tmp;
-        resp_tmp = await fetch(process.env.CRYPTO_API+'/currencies/ticker?key='+process.env.CRYPTO_KEY+'&ids='+crypto.id+'&interval=1h,1d,7d,30d&per-page=100&page=1',{
-          method:'GET',
+        resp_tmp = await fetch(process.env.CRYPTO_API + '/currencies/ticker?key=' + process.env.CRYPTO_KEY + '&ids=' + crypto.id + '&interval=1h,1d,7d,30d&per-page=100&page=1', {
+          method: 'GET',
         })
-        .then(resp => resp.json())
-        .catch(e => console.log(e))
+          .then(resp => resp.json())
+          .catch(e => console.log(e))
 
         crypto.is_authorized = true;
         crypto.actual_price = resp_tmp[0].price
@@ -74,9 +74,9 @@ router.route('/cryptos')
         crypto.price_change._30d = resp_tmp[0]['30d'].price_change
         crypto.save()
       })
-      .catch(err => {
-        console.log(err);
-      })
+        .catch(err => {
+          console.log(err);
+        })
     }
 
     res.json({
@@ -103,7 +103,7 @@ router.route('/cryptos')
       return res.status(401).json({ message: "unauthorized", error: "token not valid" })
     }
 
-    for(item in req.body.crypto_list){
+    for (item in req.body.crypto_list) {
       let obj = req.body.crypto_list[item]
 
       await Crypto.findOne({
@@ -112,9 +112,9 @@ router.route('/cryptos')
         crypto.is_authorized = false;
         crypto.save()
       })
-      .catch(err => {
-        console.log(err);
-      })
+        .catch(err => {
+          console.log(err);
+        })
     }
 
     res.json({
@@ -129,7 +129,7 @@ router.route('/cryptos/:cmid')
 
     const token = req.header("authorization");
     if (token === undefined) {
-      return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+      return res.status(401).json({ message: "unauthorized", error: "no token" })
     }
     let verifiedJwt = '';
     try {
@@ -144,10 +144,10 @@ router.route('/cryptos/:cmid')
     }).then(crypto => {
       return res.status(200).json(crypto)
     })
-    .catch(err => {
-      console.log(err);
-      return res.json(err)
-    })
+      .catch(err => {
+        console.log(err);
+        return res.json(err)
+      })
 
   })
 
@@ -174,9 +174,9 @@ router.route('/cryptos/:cmid')
       crypto.is_authorized = false;
       crypto.save()
     })
-    .catch(err => {
-      console.log(err);
-    })
+      .catch(err => {
+        console.log(err);
+      })
 
     res.json({
       message: "Unfollowing Cryptos updated",
@@ -190,7 +190,7 @@ router.route('/cryptos/:cmid/history/:period')
 
     const token = req.header("authorization");
     if (token === undefined) {
-      return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+      return res.status(401).json({ message: "unauthorized", error: "no token" })
     }
     let verifiedJwt = '';
     try {
@@ -200,16 +200,16 @@ router.route('/cryptos/:cmid/history/:period')
       return res.json(e)
     }
 
-    let period = "_"+req.params.period
+    let period = "_" + req.params.period
     Crypto.findOne({
       id: req.params.cmid
     }).then(crypto => {
       return res.status(200).json(crypto.price_change[period])
     })
-    .catch(err => {
-      console.log(err);
-      return res.json(err)
-    })
+      .catch(err => {
+        console.log(err);
+        return res.json(err)
+      })
 
   })
 

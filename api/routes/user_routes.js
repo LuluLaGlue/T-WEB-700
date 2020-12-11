@@ -137,7 +137,7 @@ router.post('/logout', (req, res) => {
   }
   const token = req.header("authorization");
   if (token === undefined) {
-    return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+    return res.status(401).json(response(401, { message: "unauthorized", error: "no token" }))
   }
 
   try {
@@ -159,7 +159,7 @@ router.get('/profile', (req, res) => {
   }
   const token = req.header("authorization");
   if (token === undefined) {
-    return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+    return res.status(401).json(response(401, { message: "unauthorized", error: "no token" }))
   }
   let verifiedJwt = '';
   try {
@@ -185,7 +185,7 @@ router.put('/profile', (req, res) => {
   }
   const token = req.header("authorization");
   if (token === undefined) {
-    return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+    return res.status(401).json(response(401, { message: "unauthorized", error: "no token" }))
   }
   let verifiedJwt = '';
   try {
