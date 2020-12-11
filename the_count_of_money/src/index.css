@@ -22,3 +22,9 @@ code {
   width: 25px;
   height: 25px;
 }
+
+.chart-container {
+  position: relative;
+  height: 5px!important;;
+  width: 5px!important;;
+}
