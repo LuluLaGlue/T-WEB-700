@@ -6,7 +6,7 @@ import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING } from "./types";
 // Register User
 export const registerUser = (userData, history) => (dispatch) => {
   axios
-    .post("http://localhost:3100/users/register", userData)
+    .post(`${process.env.REACT_APP_API_URL}/users/register`, userData)
     .then((res) => {
       history.push("/login"); // re-direct to login on successful register
     })
@@ -21,12 +21,14 @@ export const registerUser = (userData, history) => (dispatch) => {
 // Login - get user token
 export const loginUser = (userData) => (dispatch) => {
   axios
-    .post("http://localhost:3100/users/login", userData)
+    .post(`${process.env.REACT_APP_API_URL}/users/login`, userData)
     .then((res) => {
       // Save to localStorage
       // Set token to localStorage
+      console.log("res", res);
       const { token } = res.data;
       localStorage.setItem("jwtToken", token);
+      console.log("localStorage login", localStorage);
 
       // Set token to Auth header
       setAuthToken(token);
@@ -62,12 +64,29 @@ export const setUserLoading = () => {
 
 // Log user out
 export const logoutUser = () => (dispatch) => {
-  // Remove token from local storage
-  localStorage.removeItem("jwtToken");
+  const token = localStorage.getItem("jwtToken");
+  console.log("test", token);
+  let test = token.replace(/Bearer /, "");
+  console.log(test);
+  axios
+    .post(`${process.env.REACT_APP_API_URL}/users/logout`, {
+      header: { authorization: test },
+    })
+    .then((res) => {
+      // Remove token from local storage
+      localStorage.removeItem("jwtToken");
+      console.log("localStorage logout", localStorage);
 
-  // Remove auth header for future requests
-  setAuthToken(false);
+      // Remove auth header for future requests
+      setAuthToken(false);
 
-  // Set current user to empty object {} which will set isAuthenticated to false
-  dispatch(setCurrentUser({}));
+      // Set current user to empty object {} which will set isAuthenticated to false
+      dispatch(setCurrentUser({}));
+    })
+    .catch((err) =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data,
+      })
+    );
 };

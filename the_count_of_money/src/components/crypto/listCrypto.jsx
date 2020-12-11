@@ -1,13 +1,12 @@
-import React, { Component } from 'react';
-import Chart from 'chart.js';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { Component } from "react";
+import Chart from "chart.js";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
-import { useEffect } from 'react';
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { useEffect } from "react";
 
 function Crypto_row(props) {
     // Props representant une ligne de la liste des cryptos
@@ -121,7 +120,6 @@ function Crypto_row(props) {
     )
 }
 
-
 export default class CryptoList extends Component {
     constructor(props) {
         super(props);
@@ -149,20 +147,30 @@ export default class CryptoList extends Component {
     }
 
     render() {
-        if (this.state.cryptos.list === undefined) { return null }
+        if (this.state.cryptos.list === undefined) {
+            return null;
+        }
 
-        const supplyTooltip = props => (
-            <Tooltip {...props}>The term circulating supply refers to the number of cryptocurrency coins or tokens that are publicly available and circulating in the market.</Tooltip>
+        const supplyTooltip = (props) => (
+            <Tooltip {...props}>
+                The term circulating supply refers to the number of cryptocurrency coins
+                or tokens that are publicly available and circulating in the market.
+            </Tooltip>
         );
 
-        const marketTooltip = props => (
-            <Tooltip {...props}>Within the blockchain industry, the term market capitalization (or market cap) refers to a metric that measures the relative size of a cryptocurrency. It is calculated by multiplying the current market price of a particular coin or token with the total number of coins in circulation.
-            Market Cap = Current Price x Circulating Supply</Tooltip>
+        const marketTooltip = (props) => (
+            <Tooltip {...props}>
+                Within the blockchain industry, the term market capitalization (or
+                market cap) refers to a metric that measures the relative size of a
+                cryptocurrency. It is calculated by multiplying the current market price
+                of a particular coin or token with the total number of coins in
+                circulation. Market Cap = Current Price x Circulating Supply
+            </Tooltip>
         );
 
         return (
             <div class="row justify-content-md-center">
-                <div className="col-8">
+                <div className="col-8 bg-light">
                     <table class="table my-4">
                         <thead>
                             <tr>
