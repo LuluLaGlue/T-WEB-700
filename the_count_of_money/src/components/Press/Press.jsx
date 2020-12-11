@@ -9,9 +9,15 @@ const Press = () => {
   const [data, setData] = useState([]);
   const [tag, setTag] = useState([]);
 
+  let final_token;
   const token = localStorage.getItem("jwtToken");
-  const final_token = token.split(" ")[1];
-
+  console.log("token", token);
+  if (token === null) {
+    final_token = "";
+  } else {
+    final_token = token.split(" ")[1];
+  }
+  console.log("final_token", final_token);
   const config = {
     headers: {
       authorization: final_token,
