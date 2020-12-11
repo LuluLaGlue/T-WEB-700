@@ -11,13 +11,11 @@ const Press = () => {
 
   let final_token;
   const token = localStorage.getItem("jwtToken");
-  console.log("token", token);
   if (token === null) {
     final_token = "";
   } else {
     final_token = token.split(" ")[1];
   }
-  console.log("final_token", final_token);
   const config = {
     headers: {
       authorization: final_token,
