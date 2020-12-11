@@ -20,11 +20,11 @@ const SOCKET_PORT = 3101;
 const app = express();
 
 const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
-  cors: {
-    origin: '*'
-  }
-});
+// const io = require('socket.io')(server, {
+//   cors: {
+//     origin: '*'
+//   }
+// });
 
 process.env['USER_ID'] === "undefined"
 
@@ -69,14 +69,14 @@ app.listen(PORT, function () {
 
 server.listen(SOCKET_PORT, () => console.log(PORT + ' Server started'))
 
-io.on('connection', (socket) => {
+// io.on('connection', (socket) => {
 
-  socket.on('disconnect', () => {
-    console.log(socket.id + ' disconnected');
-  });
+//   socket.on('disconnect', () => {
+//     console.log(socket.id + ' disconnected');
+//   });
 
-  console.log(socket.id)
-  console.log('Client connected')
+//   console.log(socket.id)
+//   console.log('Client connected')
 
-  io.emit('chat message', 'Emit string data');
-})
+//   io.emit('chat message', 'Emit string data');
+// })

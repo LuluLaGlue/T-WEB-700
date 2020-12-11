@@ -20,7 +20,7 @@ router.get('/articles', (req, res) => {
       if (req.header("authorization") && process.env['USER_ID'] !== "undefined" && process.env['USER_ID'] !== undefined) { //if the user is not logged in the query will not take into account the params
         const token = req.header("authorization");
         if (token === undefined) {
-          return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+          return res.status(401).send({ message: "unauthorized", error: "no token" })
         }
         let verifiedJwt = '';
         try {
@@ -75,21 +75,19 @@ router.get('/articles', (req, res) => {
               value.guid = value.guid.replace(/[/]/g, '_')
               if (typeof value.category === "object") {
                 value.category.map((value_b, index_b) => {
-                  params.map((value_t, index_t) => {
-                    if (value_b.toLowerCase() === value_t.toLowerCase()) {
-                      response.push({
-                        id: value.guid,
-                        title: value.title,
-                        src: value.link,
-                        description: value.description,
-                        img: value['media:content']
-                      })
-                    }
-                  })
-                })
-              } else {
-                params.map((value_t, index_t) => {
-                  if (value.category && value.category.toLowerCase() === value_t.toLowerCase()) {
+                  if (params.length !== 0) {
+                    params.map((value_t, index_t) => {
+                      if (value_b.toLowerCase() === value_t.toLowerCase()) {
+                        response.push({
+                          id: value.guid,
+                          title: value.title,
+                          src: value.link,
+                          description: value.description,
+                          img: value['media:content']
+                        })
+                      }
+                    })
+                  } else {
                     response.push({
                       id: value.guid,
                       title: value.title,
@@ -99,6 +97,28 @@ router.get('/articles', (req, res) => {
                     })
                   }
                 })
+              } else {
+                if (params.length !== 0) {
+                  params.map((value_t, index_t) => {
+                    if (value.category && value.category.toLowerCase() === value_t.toLowerCase()) {
+                      response.push({
+                        id: value.guid,
+                        title: value.title,
+                        src: value.link,
+                        description: value.description,
+                        img: value['media:content']
+                      })
+                    }
+                  })
+                } else {
+                  response.push({
+                    id: value.guid,
+                    title: value.title,
+                    src: value.link,
+                    description: value.description,
+                    img: value['media:content']
+                  })
+                }
               }
             })
             const set = [... new Set(response)]

@@ -28,10 +28,10 @@ router.route('/cryptos')
           method: req.method
         })
       })
-      .catch(err => {
-        console.log(err);
-        return res.json(err)
-      })
+        .catch(err => {
+          console.log(err);
+          return res.json(err)
+        })
     }
     else {
       let verifiedJwt = '';
@@ -51,23 +51,23 @@ router.route('/cryptos')
         user_tmp = user;
       })
 
-      for(item in user_tmp.cryptos){
+      for (item in user_tmp.cryptos) {
         let obj = user_tmp.cryptos[item]
 
         await Crypto.findOne({
           id: obj
         }).then(async crypto => {
           let resp_tmp;
-          resp_tmp = await fetch(process.env.CRYPTO_API+'/currencies/ticker?key='+process.env.CRYPTO_KEY+'&ids='+crypto.id+'&convert=EUR&interval=1h,1d,7d,30d&per-page=100&page=1',{
-            method:'GET',
+          resp_tmp = await fetch(process.env.CRYPTO_API + '/currencies/ticker?key=' + process.env.CRYPTO_KEY + '&ids=' + crypto.id + '&convert=EUR&interval=1h,1d,7d,30d&per-page=100&page=1', {
+            method: 'GET',
           })
-          .then(resp => resp.json())
-          .catch(e => console.log(e))
+            .then(resp => resp.json())
+            .catch(e => console.log(e))
           crypto_list.push(resp_tmp)
         })
-        .catch(err => {
-          console.log(err);
-        })
+          .catch(err => {
+            console.log(err);
+          })
       }
 
       res.status(200).json({
@@ -100,18 +100,18 @@ router.route('/cryptos')
       return res.status(401).json({ message: "unauthorized", error: "token not valid" })
     }
 
-    if ((typeof req.body.crypto_list) == 'string'){
+    if ((typeof req.body.crypto_list) == 'string') {
       await Crypto.findOne({
         id: req.body.crypto_list
       }).then(async crypto => {
-          crypto_update.updateCryptoValues(crypto)
+        crypto_update.updateCryptoValues(crypto)
       })
-      .catch(err => {
-        console.log(err);
-      })
+        .catch(err => {
+          console.log(err);
+        })
     }
     else {
-      for(item in req.body.crypto_list){
+      for (item in req.body.crypto_list) {
         let obj = req.body.crypto_list[item]
 
         await Crypto.findOne({
@@ -119,9 +119,9 @@ router.route('/cryptos')
         }).then(async crypto => {
           crypto_update.updateCryptoValues(crypto)
         })
-        .catch(err => {
-          console.log(err);
-        })
+          .catch(err => {
+            console.log(err);
+          })
       }
     }
 
@@ -154,19 +154,19 @@ router.route('/cryptos')
       return res.status(401).json({ message: "unauthorized", error: "token not valid" })
     }
 
-    if ((typeof req.body.crypto_list) == 'string'){
+    if ((typeof req.body.crypto_list) == 'string') {
       await Crypto.findOne({
         id: req.body.crypto_list
       }).then(async crypto => {
         crypto.is_authorized = false;
         crypto.save()
       })
-      .catch(err => {
-        console.log(err);
-      })
+        .catch(err => {
+          console.log(err);
+        })
     }
     else {
-      for(item in req.body.crypto_list){
+      for (item in req.body.crypto_list) {
         let obj = req.body.crypto_list[item]
 
         await Crypto.findOne({
@@ -175,9 +175,9 @@ router.route('/cryptos')
           crypto.is_authorized = false;
           crypto.save()
         })
-        .catch(err => {
-          console.log(err);
-        })
+          .catch(err => {
+            console.log(err);
+          })
       }
     }
 
@@ -198,7 +198,7 @@ router.route('/cryptos/:cmid')
     }
     const token = req.header("authorization");
     if (token === undefined) {
-      return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+      return res.status(401).send({ message: "unauthorized", error: "no token" })
     }
     let verifiedJwt = '';
     try {
@@ -213,10 +213,10 @@ router.route('/cryptos/:cmid')
     }).then(crypto => {
       return res.status(200).json(crypto)
     })
-    .catch(err => {
-      console.log(err);
-      return res.json(err)
-    })
+      .catch(err => {
+        console.log(err);
+        return res.json(err)
+      })
 
   })
 
@@ -248,9 +248,9 @@ router.route('/cryptos/:cmid')
       crypto.is_authorized = false;
       crypto.save()
     })
-    .catch(err => {
-      console.log(err);
-    })
+      .catch(err => {
+        console.log(err);
+      })
 
     res.json({
       message: "Unfollowing Cryptos updated",
@@ -269,7 +269,7 @@ router.route('/cryptos/:cmid/history/:period')
     }
     const token = req.header("authorization");
     if (token === undefined) {
-      return res.status(401).send(response(401, { message: "unauthorized", error: "no token" }))
+      return res.status(401).send({ message: "unauthorized", error: "no token" })
     }
     let verifiedJwt = '';
     try {
@@ -284,10 +284,10 @@ router.route('/cryptos/:cmid/history/:period')
     }).then(crypto => {
       return res.status(200).json(crypto.periods[req.params.period])
     })
-    .catch(err => {
-      console.log(err);
-      return res.json(err)
-    })
+      .catch(err => {
+        console.log(err);
+        return res.json(err)
+      })
 
   })
 
@@ -318,7 +318,7 @@ router.route('/requests')
       is_requested: true
     }).then(crypto => {
       let crypto_list = []
-      for (item in crypto){
+      for (item in crypto) {
         crypto_list.push(crypto[item].id)
       }
       return res.status(200).json({
@@ -327,10 +327,10 @@ router.route('/requests')
         method: req.method
       })
     })
-    .catch(err => {
-      console.log(err);
-      return res.json(err)
-    })
+      .catch(err => {
+        console.log(err);
+        return res.json(err)
+      })
 
   })
 
@@ -353,19 +353,19 @@ router.route('/requests')
       return res.json(e)
     }
 
-    if ((typeof req.body.crypto_list) == 'string'){
+    if ((typeof req.body.crypto_list) == 'string') {
       await Crypto.findOne({
         id: req.body.crypto_list
       }).then(async crypto => {
         crypto.is_requested = true;
         crypto.save()
       })
-      .catch(err => {
-        console.log(err);
-      })
+        .catch(err => {
+          console.log(err);
+        })
     }
     else {
-      for(item in req.body.crypto_list){
+      for (item in req.body.crypto_list) {
         let obj = req.body.crypto_list[item]
 
         await Crypto.findOne({
@@ -374,9 +374,9 @@ router.route('/requests')
           crypto.is_requested = true;
           crypto.save()
         })
-        .catch(err => {
-          console.log(err);
-        })
+          .catch(err => {
+            console.log(err);
+          })
       }
     }
 
@@ -410,18 +410,18 @@ router.route('/validrequests')
       return res.status(401).json({ message: "unauthorized", error: "token not valid" })
     }
 
-    if ((typeof req.body.crypto_list) == 'string'){
+    if ((typeof req.body.crypto_list) == 'string') {
       await Crypto.findOne({
         id: req.body.crypto_list
       }).then(async crypto => {
-          crypto_update.updateCryptoValues(crypto)
+        crypto_update.updateCryptoValues(crypto)
       })
-      .catch(err => {
-        console.log(err);
-      })
+        .catch(err => {
+          console.log(err);
+        })
     }
     else {
-      for(item in req.body.crypto_list){
+      for (item in req.body.crypto_list) {
         let obj = req.body.crypto_list[item]
 
         await Crypto.findOne({
@@ -429,9 +429,9 @@ router.route('/validrequests')
         }).then(async crypto => {
           crypto_update.updateCryptoValues(crypto)
         })
-        .catch(err => {
-          console.log(err);
-        })
+          .catch(err => {
+            console.log(err);
+          })
       }
     }
 
