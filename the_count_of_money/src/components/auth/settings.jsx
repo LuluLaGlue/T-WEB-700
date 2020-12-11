@@ -1,147 +1,127 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { loginUser } from "../../actions/authActions";
-import classnames from "classnames";
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Card } from "react-bootstrap";
+import profil from "../../utils/profil.png";
+import "./settings.css";
+import axios from "axios";
 
+const Settings = (props) => {
+  const [username, setUsername] = useState("Sandrine");
+  const [email, setEmail] = useState("dasilva.sandrine31@gmail.com");
+  const [password, setPassword] = useState("azerty");
+  const [article, setArticle] = useState("");
 
-class Login extends Component {
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
-    constructor(props) {
-        super(props);
+  const token = localStorage.getItem("jwtToken");
+  console.log("token profil", token);
 
-        this.onChange = this.onChange.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
+  const config = {
+    headers: {
+      token,
+      //Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjc3NmMyMjI1MmYwNGQwMGQwMGM0ZCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjA1ODU5NTY0LCJleHAiOjE2MDY0NjQzNjR9.VXAvnrf9GSQUhcZ39WARbMrj4CeBHlzp82c-x-nfBMg`,
+    },
+  };
+  useEffect(() => {
+    const fetchdata = async () =>
+      await axios
+        .get(`${process.env.REACT_APP_API_URL}/users/profile`, config)
+        .then((res) => {
+          console.log("res", res);
+          setUsername(res.data.username);
+          setEmail(res.data.email);
+          //articles ??
+        });
+    fetchdata();
+  }, []);
 
-        this.state = {
-            username: "",
-            email: "",
-            password: "",
-            errors: {}
-        };
-    }
+  const submit = async (e) => {
+    e.preventDefault();
 
-    componentDidMount() {
-        // If logged in and user navigates to Login page, should redirect them to dashboard
-        if (this.props.auth.isAuthenticated) {
-            this.props.history.push("/dashboard");
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.auth.isAuthenticated) {
-            this.props.history.push("/dashboard"); // push user to dashboard when they login
-        }
-        if (nextProps.errors) {
-            this.setState({
-                errors: nextProps.errors
-            });
-        }
-    }
-
-    onChange(e) {
-        this.setState({ [e.target.id]: e.target.value });
+    const userdata = {
+      config,
+      username: username,
+      email: email,
+      password: password,
     };
+    await axios
+      .put(`${process.env.REACT_APP_API_URL}/users/profile`, userdata)
+      .then((res) => {
+        console.log("res", res);
+        setUsername(res.data.username);
+        setEmail(res.data.email);
+      });
 
-    onSubmit(e) {
-        e.preventDefault();
+    //appel axios
+  };
 
-        const userData = {
-            email: this.state.email,
-            password: this.state.password
-        };
+  return (
+    <>
+      <div id="profileDiv" className="d-flex justify-content-center">
+        <Card className="p-3" border="info" style={{ width: "25rem" }}>
+          <Card.Img id="profile" variant="top" src={profil} />
 
-        this.props.loginUser(userData);
-    }
+          <Card.Body>
+            <Card.Title id="profileTitle">My profile</Card.Title>
+            <Card.Text>Surname : {username}</Card.Text>
+            <Card.Text>Email : {email}</Card.Text>
+            <Card.Text>Coins displayed : </Card.Text>
+            <Card.Text>Tags : {article}</Card.Text>
+          </Card.Body>
+          <Button variant="primary" onClick={handleShow}>
+            Update my profile
+          </Button>
+        </Card>
+      </div>
 
-    render() {
-        const { errors } = this.state;
-
-        return (
-            <div className="row justify-content-md-center">
-                <div className="col-6 bg-light mt-5">
-                    <Link to="/">Back to home</Link>
-                    <h4><b>Login</b> below</h4>
-                    <p>Don't have an account? <Link to="/register">Register</Link></p>
-
-                    <form noValidate onSubmit={this.onSubmit}>
-                        <span className="red-text">
-                            {errors.email}
-                            {errors.emailnotfound}
-                        </span>
-                        <div className="form-group">
-                            <label htmlFor="username">Username</label>
-                            <span className="red-text">{errors.username}</span>
-                            <input
-                                onChange={this.onChange}
-                                value={this.state.username}
-                                error={errors.username}
-                                id="username"
-                                type="username"
-                                className={classnames("form-control", {
-                                    invalid: errors.username
-                                })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
-                            <input
-                                onChange={this.onChange}
-                                value={this.state.email}
-                                error={errors.email}
-                                id="email"
-                                type="email"
-                                className={classnames("form-control", {
-                                    invalid: errors.email || errors.emailnotfound
-                                })}
-                            />
-                        </div>
-                        <span className="red-text">
-                            {errors.password}
-                            {errors.passwordincorrect}
-                        </span>
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <input
-                                onChange={this.onChange}
-                                value={this.state.password}
-                                error={errors.password}
-                                id="password"
-                                type="password"
-                                className={classnames("form-control", {
-                                    invalid: errors.password || errors.passwordincorrect
-                                })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <button
-                                type="submit"
-                                className="btn btn-primary"
-                            >
-                            Login
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        );
-    }
-}
-
-
-Login.propTypes = {
-    loginUser: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired,
-    errors: PropTypes.object.isRequired
+      <div>
+        <Modal
+          {...props}
+          size="lg"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          onHide={handleClose}
+          show={show}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+              Update my profile
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h5>Username :</h5>
+            <input
+              type="text"
+              className="form-control"
+              placeholder={username}
+              aria-label="Username"
+              aria-describedby="addon-wrapping"
+            ></input>
+            <h5>Mail :</h5>
+            <input
+              type="text"
+              className="form-control"
+              placeholder={email}
+              aria-label="Mail"
+              aria-describedby="addon-wrapping"
+            ></input>
+            <h5>Change my password :</h5>
+            <input
+              type="password"
+              className="form-control"
+              placeholder={password}
+              aria-label="Password"
+              aria-describedby="addon-wrapping"
+            ></input>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={submit}>Validate</Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    </>
+  );
 };
 
-const mapStateToProps = state => ({
-    auth: state.auth,
-    errors: state.errors
-});
-
-export default connect(
-    mapStateToProps,
-    { loginUser }
-)(Login);
+export default Settings;

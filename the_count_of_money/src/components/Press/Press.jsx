@@ -10,20 +10,17 @@ const Press = () => {
     {
       id: 1,
       title: "title1",
-      article:
-        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsam mollitia voluptas, quo iusto similique",
+      article: "Lorem ipsum",
     },
     {
       id: 2,
       title: "title2",
-      article:
-        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsam mollitia voluptas, quo iusto similique",
+      article: "Lorem ipsum",
     },
     {
       id: 3,
       title: "title3",
-      article:
-        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsam mollitia voluptas, quo iusto similique",
+      article: "Lorem ipsum",
     },
   ]);
   const token = localStorage.getItem("jwtToken");
@@ -74,8 +71,10 @@ const Press = () => {
   console.log("newTag", newTag);
   return (
     <Container>
-      <h2 className="title">What's new ?</h2>
-      Search by key word :
+      <h2 className="d-flex justify-content-center text-white" id="title">
+        NEWS
+      </h2>
+      <p className="text-white">Search by key word :</p>
       <div className="search">
         <div className="select">
           <Select
@@ -103,7 +102,7 @@ const Press = () => {
         <div className="d-flex justify-content-center press-container">
           {data.map((data) => {
             return (
-              <Card className="press-card" key={data.id}>
+              <Card className="press-card" id="cardNews" key={data.id}>
                 <Card.Body>
                   <Card.Img variant="top" src={data.img} />
                   <Card.Title>{data.title}</Card.Title>
