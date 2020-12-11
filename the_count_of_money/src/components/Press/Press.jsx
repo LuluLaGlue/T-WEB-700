@@ -6,40 +6,22 @@ import "./press.css";
 import Container from "react-bootstrap/Container";
 
 const Press = () => {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      title: "title1",
-      article: "Lorem ipsum",
-    },
-    {
-      id: 2,
-      title: "title2",
-      article: "Lorem ipsum",
-    },
-    {
-      id: 3,
-      title: "title3",
-      article: "Lorem ipsum",
-    },
-  ]);
+  const [data, setData] = useState([]);
+  const [tag, setTag] = useState([]);
+
   const token = localStorage.getItem("jwtToken");
-  console.log("token profil", token);
+  const final_token = token.split(" ")[1];
 
   const config = {
     headers: {
-      token,
-      //Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjc3NmMyMjI1MmYwNGQwMGQwMGM0ZCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjA1ODU5NTY0LCJleHAiOjE2MDY0NjQzNjR9.VXAvnrf9GSQUhcZ39WARbMrj4CeBHlzp82c-x-nfBMg`,
+      authorization: final_token,
     },
   };
-  const [tag, setTag] = useState([]);
-
   useEffect(() => {
     const fetchdata = async () =>
       await axios
         .get(`${process.env.REACT_APP_API_URL}/articles?params=`, config)
         .then((res) => {
-          console.log("res", res);
           setData(res.data);
         });
     const getTag = async () =>
@@ -55,20 +37,25 @@ const Press = () => {
     getTag();
   }, []);
 
-  const getPressByTag = async () => {
+  const getPressByTag = async (tag) => {
+    let tagToSend = [];
+    for (let i in tag) {
+      tagToSend.push(tag[i].value);
+    }
     await axios
-      .get(`${process.env.REACT_APP_API_URL}/articles?params=${newTag}`, config)
+      .get(
+        `${process.env.REACT_APP_API_URL}/articles?params=${tagToSend}`,
+        config
+      )
       .then((res) => {
-        console.log("res", res.data);
-        /* res.data.map((i) => {
+        res.data.map((i) => {
           return setData(i);
-        }); */
+        });
       });
   };
 
   let newTag = [];
 
-  console.log("newTag", newTag);
   return (
     <Container>
       <h2 className="d-flex justify-content-center text-white" id="title">
@@ -85,10 +72,7 @@ const Press = () => {
             isClearable
             className="basic-multi-select"
             onChange={(e) => {
-              //newTag.push(e.value);
               newTag = e;
-              console.log("test", newTag);
-              console.log("e", e);
             }}
           />
         </div>
