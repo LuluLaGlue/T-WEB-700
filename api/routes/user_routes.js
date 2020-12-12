@@ -138,8 +138,8 @@ router.post('/logout', (req, res) => {
   }
 
   var token = req.header("authorization");
-  token = token.slice(7)
-
+  token = token.replace(/Bearer /, "")
+  console.log(token)
   if (token === undefined) {
     return res.status(401).json({ message: "unauthorized", error: "no token" })
   }
