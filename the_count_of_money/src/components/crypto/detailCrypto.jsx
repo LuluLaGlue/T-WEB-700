@@ -15,7 +15,7 @@ export default class DetailCrypto extends Component {
 
     componentDidMount() {
         axios.get(
-            'http://localhost:3100/crypto/' + this.props.match.params.id
+            `${process.env.REACT_APP_API_URL}/cryptos` + this.props.match.params.id
         ).then(
             response => { this.setState(response.data) }
         ).catch(

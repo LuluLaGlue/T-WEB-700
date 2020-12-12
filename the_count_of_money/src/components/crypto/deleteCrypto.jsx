@@ -16,7 +16,7 @@ export default class RemoveCrypto extends Component {
 
     componentDidMount() {
         axios.get(
-            'http://localhost:3100/crypto/' + this.props.match.params.id
+            `${process.env.REACT_APP_API_URL}/crypto/` + this.props.match.params.id
         ).then(
             response => {
                 this.setState({
@@ -32,7 +32,7 @@ export default class RemoveCrypto extends Component {
 
     onSubmit(e) {
         axios.get(
-            'http://localhost:3100/crypto/delete/' + this.props.match.params.id
+            `${process.env.REACT_APP_API_URL}/crypto/delete` + this.props.match.params.id
         ).then(this.props.history.push('/'));
     }
 

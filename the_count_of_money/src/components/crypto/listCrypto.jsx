@@ -141,7 +141,7 @@ export default class CryptoList extends Component {
 
     componentDidMount() {
         axios
-            .get("http://localhost:3100/cryptos")
+            .get(`${process.env.REACT_APP_API_URL}/cryptos`)
             .then((response) => {
                 this.setState({ cryptos: response.data });
                 return true;
@@ -175,9 +175,9 @@ export default class CryptoList extends Component {
         );
 
         return (
-            <div className="row justify-content-md-center ">
-                <div className="col-9 bg-dark text-light">
-                    <table className="table my-4">
+            <div className="justify-content-md-center border-top">
+                <div className="px-5 pb-5 pt-4 bg-dark text-light">
+                    <table className="table">
                         <thead>
                             <tr className="text-light">
                                 <th scope="col">#</th>

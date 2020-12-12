@@ -14,7 +14,6 @@ import Register from "./components/auth/register";
 import Login from "./components/auth/login";
 import Settings from "./components/auth/settings";
 import PrivateRoute from "./components/private-route/privateRoute";
-import Dashboard from "./components/dashboard/dashboard";
 import CryptoList from "./components/crypto/listCrypto";
 import AddCrypto from "./components/crypto/addCrypto";
 import DetailCrypto from "./components/crypto/detailCrypto";
@@ -50,6 +49,7 @@ if (localStorage.jwtToken) {
     }
 }
 
+
 class App extends Component {
     render() {
         return (
@@ -62,7 +62,6 @@ class App extends Component {
                 <Route exact path="/press" component={Press} />
                 <Route path="/detail/:id" exact component={DetailCrypto} />
                 <Switch>
-                  <PrivateRoute exact path="/dashboard" component={Dashboard} />
                   <PrivateRoute exact path="/settings" component={Settings} />
                   <PrivateRoute exact path="/add" component={AddCrypto} />
                   <PrivateRoute path="/delete/:id" component={DeleteCrypto} />
@@ -72,5 +71,6 @@ class App extends Component {
         );
     }
 }
+
 
 export default App;
