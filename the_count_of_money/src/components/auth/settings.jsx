@@ -20,7 +20,6 @@ const Settings = (props) => {
   const config = {
     headers: {
       token,
-      //Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjc3NmMyMjI1MmYwNGQwMGQwMGM0ZCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjA1ODU5NTY0LCJleHAiOjE2MDY0NjQzNjR9.VXAvnrf9GSQUhcZ39WARbMrj4CeBHlzp82c-x-nfBMg`,
     },
   };
   useEffect(() => {
@@ -52,8 +51,6 @@ const Settings = (props) => {
         setUsername(res.data.username);
         setEmail(res.data.email);
       });
-
-    //appel axios
   };
 
   return (

@@ -13,9 +13,10 @@ class NavbarSite extends Component {
   render() {
     //const { user } = this.props.auth;
     const user = localStorage.getItem("userInfo");
+    console.log("user", user);
+
     /* let parserr = JSON.parse(user);
     console.log("parserr", parserr);
-    console.log("user", user);
     const id = parserr.id; */
     return (
       <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">

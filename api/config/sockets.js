@@ -22,14 +22,18 @@ const socket_manager = (io) => {
 
     socket.on('connection', async (message) => { // On window refresh
       let token = undefined;
+      let rate = 'eur';
       if (message.token) token = message.token
       let socket_true = false
       for (item in listTokens){
         if (listTokens[item].socket === socket.id){
           if (token !== undefined) listTokens[item]['token'] = message.token;
+          if (rate !== undefined) listTokens[item]['rate'] = message.rate;
+          else listTokens[item]['rate'] = 'eur';
         }
       }
       let datas = await crypto_update.sendAuthorizedCryptos(token).then(resp => resp)
+      console.log(datas)
       if (datas.followed) socket.emit('send_cryptos', {message: 'Cryptos', list:datas.else, followed: datas.followed, method:'SOCKET'})
       else socket.emit('send_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
     })
@@ -180,7 +184,6 @@ const socket_manager = (io) => {
           if (datas.name) datas = await crypto_update.sendAuthorizedCryptos(undefined).then(resp => resp)
 
           let list = []
-          console.log(listTokens[0].rate)
           if (listTokens[item].rate === 'usd'){
             for (item in datas){
                 list.push(toUsdRate(datas[item]))

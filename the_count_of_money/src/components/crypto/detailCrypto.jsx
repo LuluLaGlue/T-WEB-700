@@ -10,19 +10,36 @@ export default class DetailCrypto extends Component {
 
         this.state = {
             crypto_name: '',
+            socket: props.socket
         }
+        this.method = this.method.bind(this);
+    }
+    method(e) {
+        e.preventDefault();
+    }
+
+    setCrypto = crypto => {
+        console.log(crypto)
+        this.setState(crypto.list)
     }
 
     componentDidMount() {
-        axios.get(
-            `${process.env.REACT_APP_API_URL}/cryptos` + this.props.match.params.id
-        ).then(
-            response => { this.setState(response.data) }
-        ).catch(
-            function (error) {
-                console.log(error);
-            }
-        )
+        if (this.props.socket) {
+
+            this.props.socket.emit('specific_crypto', { id: this.props.match.params.id })
+            this.props.socket.on('send_specific', this.setCrypto)
+            console.log(this.state)
+
+        }
+        /*  axios.get(
+             `${process.env.REACT_APP_API_URL}/cryptos` + this.props.match.params.id
+         ).then(
+             response => { this.setState(response.data) }
+         ).catch(
+             function (error) {
+                 console.log(error);
+             }
+         ) */
     }
 
     render() {
