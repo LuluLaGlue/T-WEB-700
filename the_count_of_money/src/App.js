@@ -104,6 +104,7 @@ class App extends Component {
               <CryptoList
                 datas={this.state.datas}
                 followed={this.state.followed}
+                socket={socket}
               />
             )}
           />

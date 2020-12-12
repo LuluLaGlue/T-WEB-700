@@ -16,7 +16,7 @@ const socket_manager = (io) => {
   io.on('connection', (socket) => {
 
     listClients.push(socket)
-    listTokens.push({socket: socket.id, token:undefined, rate:'eur'})
+    listTokens.push({socket: socket.id, rate:'eur', token:undefined })
 
     console.log(listTokens)
 
@@ -110,17 +110,10 @@ const socket_manager = (io) => {
       if (input.length>2){
         let datas = await Crypto.find({$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]
         }).then(resp => resp)
-        socket.emit('send_authorized', {message: 'Search', list:datas, method:'SOCKET'})
+        socket.emit('get_search', {message: 'Search', list:datas, method:'SOCKET'})
       }
     })
 
-    socket.on('ask_authorized', async (input) => { // For users or admin
-      if (input.length>2){
-        let datas = await Crypto.find({$and:[{is_authorized:true},{$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]}]
-        }).then(resp => resp)
-        socket.emit('get_authorized', {message: 'Authorized', list:datas, method:'SOCKET'})
-      }
-    })
 
     socket.on('request_period', async (message) => { // For users
       try {
@@ -184,13 +177,13 @@ const socket_manager = (io) => {
           if (datas.name) datas = await crypto_update.sendAuthorizedCryptos(undefined).then(resp => resp)
 
           let list = []
-          if (listTokens[item].rate === 'usd'){
+          /* if (listTokens[item].rate === 'usd'){
             for (item in datas){
                 list.push(toUsdRate(datas[item]))
               }
               listClients[key].emit('refresh_cryptos', {message: 'Cryptos', list:list, method:'SOCKET'})
-          }
-          else listClients[key].emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
+          } */
+          listClients[key].emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
         }
       }
     }
