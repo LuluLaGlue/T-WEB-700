@@ -282,7 +282,7 @@ const toUsdRate = async (crypto) => {
   let euros = await fetch('http://api.coincap.io/v2/rates/euro',{
     method:'GET',
   }).then(resp => resp.json())
-    .catch(e => console.log(error))
+    .catch(e => {})
 
   let rateUsd = parseFloat(euros.data.rateUsd)
 
