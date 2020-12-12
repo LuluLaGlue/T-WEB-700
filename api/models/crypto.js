@@ -21,7 +21,7 @@ const CryptoSchema = new Schema({
     default: false
   },
   logo: {
-    type: {},
+    type: String,
     required: false
   },
   rank: {

@@ -12,111 +12,128 @@ const updateCryptoValues = async crypto => {
     let euros = await fetch('http://api.coincap.io/v2/rates/euro',{
       method:'GET',
     }).then(resp => resp.json())
-      .catch(e => console.log(error))
+      .catch(e => {})
 
-    let rateUsd = parseFloat(euros.data.rateUsd)
+    let rateUsd;
+    if (euros && euros.data) rateUsd = parseFloat(euros.data.rateUsd)
 
     let resp_tmp = await fetch('http://api.coincap.io/v2/assets?ids='+crypto_tmp.id,{
       method:'GET',
     }).then(resp => resp.json())
-      .catch(e => console.log(error))
+      .catch(e => {})
 
-    crypto_tmp.actual_price = parseFloat(resp_tmp.data[0].priceUsd)/rateUsd
-    crypto_tmp.market_cap = parseFloat(resp_tmp.data[0].marketCapUsd)/rateUsd
-    crypto_tmp.rank = parseInt(resp_tmp.data[0].rank)
-    crypto_tmp.circulating_supply = parseFloat(resp_tmp.data[0].supply)
-    crypto_tmp.price_change_24h = parseFloat(resp_tmp.data[0].changePercent24Hr)
+    if (euros && euros.data && rateUsd){
+      if (resp_tmp && resp_tmp.data){
+        crypto_tmp.actual_price = parseFloat(resp_tmp.data[0].priceUsd)/rateUsd
+        crypto_tmp.market_cap = parseFloat(resp_tmp.data[0].marketCapUsd)/rateUsd
+        crypto_tmp.rank = parseInt(resp_tmp.data[0].rank)
+        crypto_tmp.circulating_supply = parseFloat(resp_tmp.data[0].supply)
+        crypto_tmp.price_change_24h = parseFloat(resp_tmp.data[0].changePercent24Hr)
+      }
 
     let test_tmp = await fetch('http://api.coincap.io/v2/candles?exchange=bitfinex&interval=m1&baseId='+crypto_tmp.id+'&quoteId=united-states-dollar',{
       method:'GET',
     }).then(resp => resp.json())
-      .catch(e => console.log(error))
-
-    crypto_tmp.periods.last_2h.opening_prices = []
-    crypto_tmp.periods.last_2h.highest_prices = []
-    crypto_tmp.periods.last_2h.lowest_prices = []
-    crypto_tmp.periods.last_2h.closing_rates = []
-    for (i = (test_tmp.data.length-120); i<test_tmp.data.length;i++){
-      crypto_tmp.periods.last_2h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
-      crypto_tmp.periods.last_2h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
-      crypto_tmp.periods.last_2h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
-      crypto_tmp.periods.last_2h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+      .catch(e => {})
+    if (test_tmp && test_tmp.data){
+      crypto_tmp.periods.last_2h.opening_prices = []
+      crypto_tmp.periods.last_2h.highest_prices = []
+      crypto_tmp.periods.last_2h.lowest_prices = []
+      crypto_tmp.periods.last_2h.closing_rates = []
+      if (test_tmp.data.length > 120)
+        for (i = (test_tmp.data.length-120); i<test_tmp.data.length;i++){
+          crypto_tmp.periods.last_2h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+          crypto_tmp.periods.last_2h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+          crypto_tmp.periods.last_2h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+          crypto_tmp.periods.last_2h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+        }
     }
 
+    test_tmp = []
     test_tmp = await fetch('http://api.coincap.io/v2/candles?exchange=bitfinex&interval=h1&baseId='+crypto_tmp.id+'&quoteId=united-states-dollar',{
       method:'GET',
     }).then(resp => resp.json())
-      .catch(e => console.log(error))
+      .catch(e => {})
+    if (test_tmp && test_tmp.data){
+      crypto_tmp.periods.last_48h.opening_prices = []
+      crypto_tmp.periods.last_48h.highest_prices = []
+      crypto_tmp.periods.last_48h.lowest_prices = []
+      crypto_tmp.periods.last_48h.closing_rates = []
+      if (test_tmp.data.length > 48)
+        for (i = (test_tmp.data.length-48); i<test_tmp.data.length;i++){
+          crypto_tmp.periods.last_48h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+          crypto_tmp.periods.last_48h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+          crypto_tmp.periods.last_48h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+          crypto_tmp.periods.last_48h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+        }
 
-    crypto_tmp.periods.last_48h.opening_prices = []
-    crypto_tmp.periods.last_48h.highest_prices = []
-    crypto_tmp.periods.last_48h.lowest_prices = []
-    crypto_tmp.periods.last_48h.closing_rates = []
+      crypto_tmp.periods.last_24h.opening_prices = []
+      crypto_tmp.periods.last_24h.highest_prices = []
+      crypto_tmp.periods.last_24h.lowest_prices = []
+      crypto_tmp.periods.last_24h.closing_rates = []
 
-    for (i = (test_tmp.data.length-48); i<test_tmp.data.length;i++){
-      crypto_tmp.periods.last_48h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
-      crypto_tmp.periods.last_48h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
-      crypto_tmp.periods.last_48h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
-      crypto_tmp.periods.last_48h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+      if (test_tmp.data.length > 24)
+        for (i = (test_tmp.data.length-24); i<test_tmp.data.length;i++){
+          crypto_tmp.periods.last_24h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+          crypto_tmp.periods.last_24h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+          crypto_tmp.periods.last_24h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+          crypto_tmp.periods.last_24h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+        }
     }
 
-    crypto_tmp.periods.last_24h.opening_prices = []
-    crypto_tmp.periods.last_24h.highest_prices = []
-    crypto_tmp.periods.last_24h.lowest_prices = []
-    crypto_tmp.periods.last_24h.closing_rates = []
-
-    for (i = (test_tmp.data.length-24); i<test_tmp.data.length;i++){
-      crypto_tmp.periods.last_24h.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
-      crypto_tmp.periods.last_24h.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
-      crypto_tmp.periods.last_24h.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
-      crypto_tmp.periods.last_24h.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
-    }
-
+    test_tmp = []
     test_tmp = await fetch('http://api.coincap.io/v2/candles?exchange=bitfinex&interval=d1&baseId='+crypto_tmp.id+'&quoteId=united-states-dollar',{
       method:'GET',
     }).then(resp => resp.json())
-      .catch(e => console.log(error))
+      .catch(e => {})
+    if (test_tmp && test_tmp.data){
+      crypto_tmp.periods.last_month.opening_prices = []
+      crypto_tmp.periods.last_month.highest_prices = []
+      crypto_tmp.periods.last_month.lowest_prices = []
+      crypto_tmp.periods.last_month.closing_rates = []
 
-    crypto_tmp.periods.last_month.opening_prices = []
-    crypto_tmp.periods.last_month.highest_prices = []
-    crypto_tmp.periods.last_month.lowest_prices = []
-    crypto_tmp.periods.last_month.closing_rates = []
+      if (test_tmp.data.length > 0){
+        crypto_tmp.lowest_price_day = parseFloat(test_tmp.data[test_tmp.data.length-1].low)/rateUsd
+        crypto_tmp.highest_price_day = parseFloat(test_tmp.data[test_tmp.data.length-1].high)/rateUsd
+      }
+      else {
+        crypto_tmp.lowest_price_day = 0
+        crypto_tmp.highest_price_day = 0
+      }
+      if (test_tmp.data.length > 30)
+        for (i = (test_tmp.data.length-30); i<test_tmp.data.length;i++){
+          crypto_tmp.periods.last_month.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+          crypto_tmp.periods.last_month.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+          crypto_tmp.periods.last_month.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+          crypto_tmp.periods.last_month.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+        }
 
-    crypto_tmp.lowest_price_day = test_tmp.data[test_tmp.data.length-1].low
-    crypto_tmp.highest_price_day = test_tmp.data[test_tmp.data.length-1].high
+      crypto_tmp.periods.last_week.opening_prices = []
+      crypto_tmp.periods.last_week.highest_prices = []
+      crypto_tmp.periods.last_week.lowest_prices = []
+      crypto_tmp.periods.last_week.closing_rates = []
+      if (test_tmp.data.length > 7)
+        for (i = (test_tmp.data.length-7); i<test_tmp.data.length;i++){
+          crypto_tmp.periods.last_week.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+          crypto_tmp.periods.last_week.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+          crypto_tmp.periods.last_week.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+          crypto_tmp.periods.last_week.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+        }
 
-    for (i = (test_tmp.data.length-30); i<test_tmp.data.length;i++){
-      crypto_tmp.periods.last_month.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
-      crypto_tmp.periods.last_month.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
-      crypto_tmp.periods.last_month.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
-      crypto_tmp.periods.last_month.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+      crypto_tmp.periods.last_60d.opening_prices = []
+      crypto_tmp.periods.last_60d.highest_prices = []
+      crypto_tmp.periods.last_60d.lowest_prices = []
+      crypto_tmp.periods.last_60d.closing_rates = []
+      if (test_tmp.data.length > 60)
+        for (i = (test_tmp.data.length-60); i<test_tmp.data.length;i++){
+          crypto_tmp.periods.last_60d.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
+          crypto_tmp.periods.last_60d.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
+          crypto_tmp.periods.last_60d.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
+          crypto_tmp.periods.last_60d.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
+        }
     }
-
-    crypto_tmp.periods.last_week.opening_prices = []
-    crypto_tmp.periods.last_week.highest_prices = []
-    crypto_tmp.periods.last_week.lowest_prices = []
-    crypto_tmp.periods.last_week.closing_rates = []
-
-    for (i = (test_tmp.data.length-7); i<test_tmp.data.length;i++){
-      crypto_tmp.periods.last_week.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
-      crypto_tmp.periods.last_week.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
-      crypto_tmp.periods.last_week.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
-      crypto_tmp.periods.last_week.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
-    }
-
-    crypto_tmp.periods.last_60d.opening_prices = []
-    crypto_tmp.periods.last_60d.highest_prices = []
-    crypto_tmp.periods.last_60d.lowest_prices = []
-    crypto_tmp.periods.last_60d.closing_rates = []
-
-    for (i = (test_tmp.data.length-60); i<test_tmp.data.length;i++){
-      crypto_tmp.periods.last_60d.opening_prices.push(parseFloat(test_tmp.data[i].open)/rateUsd)
-      crypto_tmp.periods.last_60d.highest_prices.push(parseFloat(test_tmp.data[i].high)/rateUsd)
-      crypto_tmp.periods.last_60d.lowest_prices.push(parseFloat(test_tmp.data[i].low)/rateUsd)
-      crypto_tmp.periods.last_60d.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
-    }
-
     crypto_tmp.save()
+  }
 }
 
 const refreshCryptoDB = async () => {
@@ -173,6 +190,7 @@ const refreshCryptoValues = async () => {
   await Crypto.find({
     is_authorized: true
   }).then(async crypto => {
+    console.log(crypto.length)
     for (item in crypto){
       updateCryptoValues(crypto[item])
       crypto_list.push(crypto[item].id)
@@ -201,9 +219,19 @@ const sendAuthorizedCryptos = async (token) => {
     let verifiedJwt = '';
     try {
       verifiedJwt = jwt.verify(token, keys.secretOrKey);
+      console.log('verifiedJwt ',verifiedJwt)
     } catch (e) {
-      console.log(e)
-      return e
+      let datas = await Crypto.find({
+        is_authorized: true
+      }).then(crypto => {
+        return crypto
+      })
+      .catch(err => {
+        console.log(err);
+        return null
+      })
+      console.log('datas ',datas)
+      return datas
     }
 
     let user_tmp;
@@ -214,10 +242,8 @@ const sendAuthorizedCryptos = async (token) => {
     }).then(user => {
       user_tmp = user;
     })
-
     for(item in user_tmp.cryptos){
       let obj = user_tmp.cryptos[item]
-
       await Crypto.findOne({$and:[{id: obj}, {is_authorized:true}]
       }).then(async crypto => {
         if (crypto) crypto_list.push(crypto)
@@ -226,7 +252,27 @@ const sendAuthorizedCryptos = async (token) => {
         console.log(err);
       })
     }
-    return crypto_list
+
+    let crypto_list_tmp = crypto_list
+    let cryptos = await Crypto.find({
+      is_authorized:true
+    }).then(async crypto => {
+      for (item in crypto){
+        let found = false;
+        for(key in crypto_list){
+          if (crypto_list[key].name === crypto[item].name){
+            found = true;
+          }
+        }
+        if (!found){
+          crypto_list_tmp.push(crypto[item])
+        }
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    })
+    return crypto_list_tmp
   }
 }
 
@@ -239,7 +285,7 @@ const toUsdRate = async (crypto) => {
 
   let rateUsd = parseFloat(euros.data.rateUsd)
 
-  let datas = await Crypto.find({
+  let datas = await Crypto.findOne({
     id:crypto.id
   }).then(crypto => {
     let crypto_tmp = crypto

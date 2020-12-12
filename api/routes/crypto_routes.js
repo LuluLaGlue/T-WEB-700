@@ -50,29 +50,11 @@ router.route('/cryptos')
       }).then(user => {
         user_tmp = user;
       })
-
-      for(item in user_tmp.cryptos){
-        let obj = user_tmp.cryptos[item]
-
-        await Crypto.findOne({
-          id: obj
-        }).then(async crypto => {
-          let resp_tmp;
-          resp_tmp = await fetch(process.env.CRYPTO_API+'/currencies/ticker?key='+process.env.CRYPTO_KEY+'&ids='+crypto.id+'&convert=EUR&interval=1h,1d,7d,30d&per-page=100&page=1',{
-            method:'GET',
-          })
-          .then(resp => resp.json())
-          .catch(e => console.log(e))
-          crypto_list.push(resp_tmp)
-        })
-        .catch(err => {
-          console.log(err);
-        })
-      }
+      let datas = await crypto_update.sendAuthorizedCryptos(token).then(resp => resp)
 
       res.status(200).json({
         message: "User cryptos",
-        list: crypto_list,
+        list: datas,
         method: req.method
       })
     }
@@ -105,6 +87,8 @@ router.route('/cryptos')
         id: req.body.crypto_list
       }).then(async crypto => {
           crypto_update.updateCryptoValues(crypto)
+          crypto.is_authorized = true;
+          crypto.save()
       })
       .catch(err => {
         console.log(err);
@@ -118,6 +102,8 @@ router.route('/cryptos')
           id: obj
         }).then(async crypto => {
           crypto_update.updateCryptoValues(crypto)
+          crypto.is_authorized = true;
+          crypto.save()
         })
         .catch(err => {
           console.log(err);
