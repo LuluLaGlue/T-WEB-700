@@ -71,15 +71,13 @@ export const setUserLoading = () => {
 // Log user out
 export const logoutUser = () => (dispatch) => {
   const tokenLocal = localStorage.getItem("jwtToken");
-
-  let token = tokenLocal.replace(/Bearer /, "");
-  console.log(token);
+  const token = tokenLocal.slice(7);
+  const config = {
+    headers: { authorization: token },
+  };
   axios
-    .post(`${process.env.REACT_APP_API_URL}/users/logout`, {
-      header: { authorization: token },
-    })
+    .post(`${process.env.REACT_APP_API_URL}/users/logout`, config)
     .then((res) => {
-      // Remove token from local storage
       localStorage.removeItem("jwtToken");
       localStorage.removeItem("userInfo");
 
