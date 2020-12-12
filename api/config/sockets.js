@@ -30,7 +30,8 @@ const socket_manager = (io) => {
         }
       }
       let datas = await crypto_update.sendAuthorizedCryptos(token).then(resp => resp)
-      socket.emit('send_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
+      if (datas.followed) socket.emit('send_cryptos', {message: 'Cryptos', list:datas.else, followed: datas.followed, method:'SOCKET'})
+      else socket.emit('send_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
     })
 
     socket.on('disconnect', () => {
@@ -105,7 +106,15 @@ const socket_manager = (io) => {
       if (input.length>2){
         let datas = await Crypto.find({$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]
         }).then(resp => resp)
-        socket.emit('get_search', {message: 'Search', list:datas, method:'SOCKET'})
+        socket.emit('send_authorized', {message: 'Search', list:datas, method:'SOCKET'})
+      }
+    })
+
+    socket.on('ask_authorized', async (input) => { // For users or admin
+      if (input.length>2){
+        let datas = await Crypto.find({$and:[{is_authorized:true},{$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]}]
+        }).then(resp => resp)
+        socket.emit('get_authorized', {message: 'Authorized', list:datas, method:'SOCKET'})
       }
     })
 

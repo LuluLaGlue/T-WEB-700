@@ -235,7 +235,8 @@ const sendAuthorizedCryptos = async (token) => {
     }
 
     let user_tmp;
-    let crypto_list = [];
+    let crypto_followed = [];
+    let crypto_else = [];
 
     await User.findOne({
       _id: verifiedJwt.id
@@ -246,14 +247,13 @@ const sendAuthorizedCryptos = async (token) => {
       let obj = user_tmp.cryptos[item]
       await Crypto.findOne({$and:[{id: obj}, {is_authorized:true}]
       }).then(async crypto => {
-        if (crypto) crypto_list.push(crypto)
+        if (crypto) crypto_followed.push(crypto)
       })
       .catch(err => {
         console.log(err);
       })
     }
 
-    let crypto_list_tmp = crypto_list
     let cryptos = await Crypto.find({
       is_authorized:true
     },null,{sort:{rank:1}
@@ -261,19 +261,19 @@ const sendAuthorizedCryptos = async (token) => {
       for (item in crypto){
         let found = false;
         for(key in crypto_list){
-          if (crypto_list[key].name === crypto[item].name){
+          if (crypto_followed[key].name === crypto[item].name){
             found = true;
           }
         }
         if (!found){
-          crypto_list_tmp.push(crypto[item])
+          crypto_else.push(crypto[item])
         }
       }
     })
     .catch(err => {
       console.log(err);
     })
-    return crypto_list_tmp
+    return {followed:crypto_followed, else:crypto_else}
   }
 }
 
