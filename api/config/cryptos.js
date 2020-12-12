@@ -132,7 +132,7 @@ const updateCryptoValues = async crypto => {
           crypto_tmp.periods.last_60d.closing_rates.push(parseFloat(test_tmp.data[i].close)/rateUsd)
         }
     }
-    crypto_tmp.save()
+    crypto_tmp.update()
   }
 }
 
@@ -206,7 +206,7 @@ const sendAuthorizedCryptos = async (token) => {
   if (token === undefined) {
     let datas = await Crypto.find({
       is_authorized: true
-    }).then(crypto => {
+    }, null, {sort:{rank:1}}).then(crypto => {
       return crypto
     })
     .catch(err => {
@@ -223,7 +223,7 @@ const sendAuthorizedCryptos = async (token) => {
     } catch (e) {
       let datas = await Crypto.find({
         is_authorized: true
-      }).then(crypto => {
+      }, null, {sort:{rank:1}}).then(crypto => {
         return crypto
       })
       .catch(err => {
@@ -256,6 +256,7 @@ const sendAuthorizedCryptos = async (token) => {
     let crypto_list_tmp = crypto_list
     let cryptos = await Crypto.find({
       is_authorized:true
+    },null,{sort:{rank:1}
     }).then(async crypto => {
       for (item in crypto){
         let found = false;
