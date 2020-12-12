@@ -6,44 +6,36 @@ import "./press.css";
 import Container from "react-bootstrap/Container";
 
 const Press = () => {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      title: "title1",
-      article:
-        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsam mollitia voluptas, quo iusto similique",
-    },
-    {
-      id: 2,
-      title: "title2",
-      article:
-        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsam mollitia voluptas, quo iusto similique",
-    },
-    {
-      id: 3,
-      title: "title3",
-      article:
-        "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsam mollitia voluptas, quo iusto similique",
-    },
-  ]);
-
-  const config = {
-    headers: {
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjc3NmMyMjI1MmYwNGQwMGQwMGM0ZCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNjA1ODU5NTY0LCJleHAiOjE2MDY0NjQzNjR9.VXAvnrf9GSQUhcZ39WARbMrj4CeBHlzp82c-x-nfBMg`,
-    },
-  };
+  const [data, setData] = useState([]);
   const [tag, setTag] = useState([]);
 
+  let final_token;
+  const token = localStorage.getItem("jwtToken");
+  console.log("token", token);
+  if (token === null) {
+    final_token = "";
+  } else {
+    final_token = token.split(" ")[1];
+  }
+  console.log("final_token", final_token);
+  const config = {
+    headers: {
+      authorization: final_token,
+    },
+  };
   useEffect(() => {
     const fetchdata = async () =>
       await axios
-        .get("http://localhost:3100/articles?params=", config)
+        .get(`${process.env.REACT_APP_API_URL}/articles?params=`, config)
         .then((res) => {
           setData(res.data);
         });
     const getTag = async () =>
       await axios
-        .get(`http://localhost:3100/articles/list/categories`, config)
+        .get(
+          `${process.env.REACT_APP_API_URL}/articles/list/categories`,
+          config
+        )
         .then((result) => {
           setTag(result.data);
         });
@@ -51,45 +43,42 @@ const Press = () => {
     getTag();
   }, []);
 
-  const getPressByTag = async () => {
+  const getPressByTag = async (tag) => {
+    let tagToSend = [];
+    for (let i in tag) {
+      tagToSend.push(tag[i].value);
+    }
     await axios
-      .get(`http://localhost:3100/articles?params=${newTag}`, config)
+      .get(
+        `${process.env.REACT_APP_API_URL}/articles?params=${tagToSend}`,
+        config
+      )
       .then((res) => {
-        console.log("res", res.data);
-        /* res.data.map((i) => {
+        res.data.map((i) => {
           return setData(i);
-        }); */
+        });
       });
   };
 
   let newTag = [];
 
-  /*   const updateTag = (e) => {
-    newTag.push(e);
-    console.log("newTag dans la fonction", newTag);
-  }; */
-  console.log("newTag", newTag);
   return (
     <Container>
-      <h2 className="title">What's new ?</h2>
-      Search by key word :
+      <h2 className="d-flex justify-content-center text-white" id="title">
+        NEWS
+      </h2>
+      <p className="text-white">Search by key word :</p>
       <div className="search">
         <div className="select">
           <Select
-            options={tag.map((data) => {
-              return { value: data, label: data };
+            options={tag.map((dataMap) => {
+              return { value: dataMap, label: dataMap };
             })}
             isMulti
             isClearable
             className="basic-multi-select"
             onChange={(e) => {
-              let interm;
-              let iter;
-              for (iter in e) {
-                interm = e[iter].value;
-              }
-              newTag.push(interm);
-              console.log("test", newTag);
+              newTag = e;
             }}
           />
         </div>
@@ -103,7 +92,7 @@ const Press = () => {
         <div className="d-flex justify-content-center press-container">
           {data.map((data) => {
             return (
-              <Card className="press-card" key={data.id}>
+              <Card className="press-card" id="cardNews" key={data.id}>
                 <Card.Body>
                   <Card.Img variant="top" src={data.img} />
                   <Card.Title>{data.title}</Card.Title>
