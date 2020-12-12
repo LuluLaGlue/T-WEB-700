@@ -136,11 +136,13 @@ router.post('/logout', (req, res) => {
       .status(401)
       .json({ message: "unauthorized", error: "user must be logged in" });
   }
-  const token = req.header("authorization");
+
+  var token = req.header("authorization");
+  token = token.replace(/Bearer /, "")
+  
   if (token === undefined) {
     return res.status(401).json({ message: "unauthorized", error: "no token" })
   }
-
   try {
     jwt.verify(token, keys.secretOrKey);
   } catch (e) {
