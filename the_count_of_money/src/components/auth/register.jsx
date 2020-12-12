@@ -56,7 +56,7 @@ class Register extends Component {
     const { errors } = this.state;
 
     return (
-      <div class="container">
+      <div className="container">
         <div className="row justify-content-md-center">
           <div className="col-6 p-5 mt-5 card">
             <Link to="/">Back to home</Link>
