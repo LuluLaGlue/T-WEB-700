@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
+
 export default class RemoveCrypto extends Component {
 
     constructor(props) {
@@ -31,7 +32,7 @@ export default class RemoveCrypto extends Component {
 
     onSubmit(e) {
         axios.get(
-            'http://localhost:4000/crypto/delete/' + this.props.match.params.id
+            'http://localhost:3100/crypto/delete/' + this.props.match.params.id
         ).then(this.props.history.push('/'));
     }
 

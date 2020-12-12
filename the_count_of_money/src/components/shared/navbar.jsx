@@ -24,7 +24,7 @@ class NavbarSite extends Component {
               <Nav.Link href="/press">News</Nav.Link>
             </Nav>
             <Nav>
-              <NavDropdown title={user.name} id="collasible-nav-dropdown">
+              <NavDropdown title={user.name != '' ? "Account": user.name} id="collasible-nav-dropdown">
                 <NavDropdown.Item href="/login">Login</NavDropdown.Item>
                 <NavDropdown.Item href="/register">Register</NavDropdown.Item>
                 <NavDropdown.Item onClick={this.onLogoutClick}>
