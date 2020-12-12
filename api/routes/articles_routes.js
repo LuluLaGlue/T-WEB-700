@@ -82,16 +82,59 @@ router.get("/articles", (req, res) => {
             _id: verifiedJwt.id,
           }).then((usr) => {
             params = usr.articles;
-            articles.sort(function (a, b) {
-              return new Date(b.pubDate) - new Date(a.pubDate);
-            });
-            articles.map((value, index) => {
-              value.guid = value.guid.replace(/[/]/g, "_");
-              if (typeof value.category === "object") {
-                value.category.map((value_b, index_b) => {
+            if (params.length === 0) {
+              let response = [];
+              articles.sort(function (a, b) {
+                return new Date(b.pubDate) - new Date(a.pubDate);
+              });
+              articles.map((value, index) => {
+                articles[index].guid = value.guid.replace(/[/]/g, "_");
+                response.push({
+                  id: value.guid,
+                  title: value.title,
+                  src: value.link,
+                  description: value.description,
+                  img: value["media:content"],
+                });
+              });
+              res.json(response);
+            } else {
+              articles.sort(function (a, b) {
+                return new Date(b.pubDate) - new Date(a.pubDate);
+              });
+              articles.map((value, index) => {
+                value.guid = value.guid.replace(/[/]/g, "_");
+                if (typeof value.category === "object") {
+                  value.category.map((value_b, index_b) => {
+                    if (params.length !== 0) {
+                      params.map((value_t, index_t) => {
+                        if (value_b.toLowerCase() === value_t.toLowerCase()) {
+                          response.push({
+                            id: value.guid,
+                            title: value.title,
+                            src: value.link,
+                            description: value.description,
+                            img: value["media:content"],
+                          });
+                        }
+                      });
+                    } else {
+                      response.push({
+                        id: value.guid,
+                        title: value.title,
+                        src: value.link,
+                        description: value.description,
+                        img: value["media:content"],
+                      });
+                    }
+                  });
+                } else {
                   if (params.length !== 0) {
                     params.map((value_t, index_t) => {
-                      if (value_b.toLowerCase() === value_t.toLowerCase()) {
+                      if (
+                        value.category &&
+                        value.category.toLowerCase() === value_t.toLowerCase()
+                      ) {
                         response.push({
                           id: value.guid,
                           title: value.title,
@@ -110,36 +153,11 @@ router.get("/articles", (req, res) => {
                       img: value["media:content"],
                     });
                   }
-                });
-              } else {
-                if (params.length !== 0) {
-                  params.map((value_t, index_t) => {
-                    if (
-                      value.category &&
-                      value.category.toLowerCase() === value_t.toLowerCase()
-                    ) {
-                      response.push({
-                        id: value.guid,
-                        title: value.title,
-                        src: value.link,
-                        description: value.description,
-                        img: value["media:content"],
-                      });
-                    }
-                  });
-                } else {
-                  response.push({
-                    id: value.guid,
-                    title: value.title,
-                    src: value.link,
-                    description: value.description,
-                    img: value["media:content"],
-                  });
                 }
-              }
-            });
-            const set = [...new Set(response)];
-            res.json(set);
+              });
+              const set = [...new Set(response)];
+              res.json(set);
+            }
           });
         }
       } else {

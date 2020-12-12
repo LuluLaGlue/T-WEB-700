@@ -24,22 +24,19 @@ export const loginUser = (userData) => (dispatch) => {
     .post(`${process.env.REACT_APP_API_URL}/users/login`, userData)
     .then((res) => {
       const { token } = res.data;
-      localStorage.setItem("jwtToken", token);
+      localStorage.setItem("jwtToken", token.replace(/Bearer /, ""));
       // Set token to Auth header
       setAuthToken(token);
       // Decode token to get user data
       const decoded = jwt_decode(token);
       // Set current user
       dispatch(setCurrentUser(decoded));
-
-      const final_token = token.split(" ")[1];
-      const config = {
-        headers: {
-          authorization: final_token,
-        },
-      };
       axios
-        .get(`${process.env.REACT_APP_API_URL}/users/profile`, config)
+        .get(`${process.env.REACT_APP_API_URL}/users/profile`, {
+          headers: {
+            authorization: localStorage.getItem("jwtToken"),
+          },
+        })
         .then((res) => {
           const userInfo = res.data;
           localStorage.setItem("userInfo", JSON.stringify(userInfo));
