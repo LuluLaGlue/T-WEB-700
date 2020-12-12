@@ -11,8 +11,12 @@ class NavbarSite extends Component {
   };
 
   render() {
-    const { user } = this.props.auth;
-
+    //const { user } = this.props.auth;
+    const user = localStorage.getItem("userInfo");
+    /* let parserr = JSON.parse(user);
+    console.log("parserr", parserr);
+    console.log("user", user);
+    const id = parserr.id; */
     return (
       <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
         <Container>
@@ -24,7 +28,12 @@ class NavbarSite extends Component {
               <Nav.Link href="/press">News</Nav.Link>
             </Nav>
             <Nav>
-              <NavDropdown title={user.name != '' ? "Account": user.name} id="collasible-nav-dropdown">
+              <NavDropdown
+                title={
+                  this.props.auth.isAuthenticated === false ? "" : `Welcome, `
+                }
+                id="collasible-nav-dropdown"
+              >
                 <NavDropdown.Item href="/login">Login</NavDropdown.Item>
                 <NavDropdown.Item href="/register">Register</NavDropdown.Item>
                 <NavDropdown.Item onClick={this.onLogoutClick}>

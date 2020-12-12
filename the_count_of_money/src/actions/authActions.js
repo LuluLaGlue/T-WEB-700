@@ -23,21 +23,24 @@ export const loginUser = (userData) => (dispatch) => {
   axios
     .post(`${process.env.REACT_APP_API_URL}/users/login`, userData)
     .then((res) => {
-      // Save to localStorage
-      // Set token to localStorage
-      console.log("res", res);
       const { token } = res.data;
-      localStorage.setItem("jwtToken", token);
-      console.log("localStorage login", localStorage);
-
+      localStorage.setItem("jwtToken", token.replace(/Bearer /, ""));
       // Set token to Auth header
       setAuthToken(token);
-
       // Decode token to get user data
       const decoded = jwt_decode(token);
-
       // Set current user
       dispatch(setCurrentUser(decoded));
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/users/profile`, {
+          headers: {
+            authorization: localStorage.getItem("jwtToken"),
+          },
+        })
+        .then((res) => {
+          const userInfo = res.data;
+          localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        });
     })
     .catch((err) =>
       dispatch({
@@ -64,18 +67,16 @@ export const setUserLoading = () => {
 
 // Log user out
 export const logoutUser = () => (dispatch) => {
-  const token = localStorage.getItem("jwtToken");
-  console.log("test", token);
-  let test = token.replace(/Bearer /, "");
-  console.log(test);
+  const tokenLocal = localStorage.getItem("jwtToken");
+  const token = tokenLocal.slice(7);
+  const config = {
+    headers: { authorization: token },
+  };
   axios
-    .post(`${process.env.REACT_APP_API_URL}/users/logout`, {
-      header: { authorization: test },
-    })
+    .post(`${process.env.REACT_APP_API_URL}/users/logout`, config)
     .then((res) => {
-      // Remove token from local storage
       localStorage.removeItem("jwtToken");
-      console.log("localStorage logout", localStorage);
+      localStorage.removeItem("userInfo");
 
       // Remove auth header for future requests
       setAuthToken(false);
