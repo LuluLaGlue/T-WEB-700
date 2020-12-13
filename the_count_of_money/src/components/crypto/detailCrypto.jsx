@@ -7,17 +7,14 @@ import { useEffect } from "react";
 
 function Crypto_chart(props) {
     // Props representant une ligne de la liste des cryptos
-
-    const last_7d = props.crypto.periods.last_week.opening_prices
-    const last_7d_purcent = (
-        (last_7d[last_7d.length - 1] - last_7d[0]) / last_7d[last_7d.length - 1]
-    ) * 100
-
+    /*
     useEffect(() => {
-        const ctx = document.getElementById(props.crypto.rank);
+        const ctx = document.getElementById(props.rank);
+        console.log('------------------------')
+        console.log(props)
 
         // recuperation des donnees pour le graph
-        const data_list = props.crypto.periods.last_month.opening_prices;
+        const data_list = props.periods.last_month.opening_prices;
 
         // utiliser pour changer la couleur du graph selon l'evolution
         const evolution_price = data_list[data_list.length - 1] - data_list[0]
@@ -72,9 +69,11 @@ function Crypto_chart(props) {
             }
         });
     });
+    <canvas id={props.rank} width="200" height="60"></canvas>
+    */
 
     return (
-        <canvas id={props.crypto.rank} width="200" height="60"></canvas>
+        <h1>{props.name}</h1>
     )
 }
 
@@ -120,23 +119,25 @@ export default class DetailCrypto extends Component {
     }
 
     cryptoChart() {
-        return <Crypto_chart crypto={this.state.cryptos}/>;
+        return <Crypto_chart crypto={this.state}/>;
     }
 
     render() {
-        if (this.state.cryptos === undefined) {
+        if (this.state.name === undefined) {
             return null;
         }
 
         return (
-            <div>
-                <h3 align="center">Details for {this.state.name}</h3>
-                <h5>Price: {this.state.actual_price}</h5>
-                <h5>Lowest 24h: {this.state.lowest_price_day}</h5>
-                <h5>Highest 24h: {this.state.highest_price_day}</h5>
-                <h5>Marketcap: {this.state.market_cap}</h5>
-                {this.cryptoChart()}
-                <Link to={"/edit/" + this.state._id}>Edit</Link> | <Link to={"/delete/" + this.state._id}>Delete</Link>
+            <div className="bg-dark text-light">
+                <div className="container">
+                    <h3 align="center">Details for {this.state.name}</h3>
+                    <h5>Price: {this.state.actual_price}</h5>
+                    <h5>Lowest 24h: {this.state.lowest_price_day}</h5>
+                    <h5>Highest 24h: {this.state.highest_price_day}</h5>
+                    <h5>Marketcap: {this.state.market_cap}</h5>
+                    {this.cryptoChart()}
+                    <Link to={"/edit/" + this.state._id}>Edit</Link> | <Link to={"/delete/" + this.state._id}>Delete</Link>
+                </div>
             </div>
         )
     }
