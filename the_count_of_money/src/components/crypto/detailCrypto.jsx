@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Chart from "chart.js";
-import { useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 export default class DetailCrypto extends Component {
@@ -47,34 +45,65 @@ export default class DetailCrypto extends Component {
     }
 
     createChart() {
+        // chart avec: closing_rates highest_prices lowest_prices opening_prices
         // recuperation des donnees pour le graph
-        const data_list = this.state.periods.last_month.opening_prices;
+        const data_list = this.state.periods.last_60d.opening_prices;
 
         // utiliser pour changer la couleur du graph selon l'evolution
         const evolution_price = data_list[data_list.length - 1] - data_list[0]
+
         new Chart("graph", {
             type: "line",
             data: {
                 labels: Array.from(Array(data_list.length).keys()),
-                datasets: [{
-                    data: data_list,
-                    pointRadius: 0,
-                    fill: false,
-                    lineTension: 0,
-                    borderColor: evolution_price > 0 ? '#22922d' : '#dc3545',
-                    borderWidth: 2,
-                }],
+                datasets: [
+                    {
+                        data: data_list,
+                        pointRadius: 0,
+                        fill: false,
+                        lineTension: 0.1,
+                        borderColor: '#778aea',
+                        borderWidth: 2,
+                        label: 'opening rates',
+                    },
+                    {
+                        data: this.state.periods.last_60d.closing_rates,
+                        pointRadius: 0,
+                        fill: false,
+                        lineTension: 0.1,
+                        borderColor: "#8552ff",
+                        borderWidth: 2,
+                        label: 'closing rates',
+                    },
+                    {
+                        data: this.state.periods.last_60d.highest_prices,
+                        pointRadius: 0,
+                        fill: true,
+                        lineTension: 0.1,
+                        borderColor: "#3c7d43",
+                        borderWidth: 2,
+                        label: 'highest prices',
+                    },
+                    {
+                        data: this.state.periods.last_60d.lowest_prices,
+                        pointRadius: 0,
+                        fill: true,
+                        lineTension: 0.1,
+                        borderColor: "#b12c39",
+                        borderWidth: 2,
+                        label: 'lowest prices',
+                    }
+                ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                legend: {
-                    display: false
-                },
                 scales: {
                     xAxes: [{
                         ticks: {
-                            display: false,
+                            callback: function (value, index, values) {
+                                return (values[values.length-1] - value) + " jours" ;
+                            },
                         }
                     }],
                     yAxes: [{
@@ -95,7 +124,7 @@ export default class DetailCrypto extends Component {
         }
 
         return (
-            <div className="bg-dark text-light">
+            <div className="bg-dark text-light border-top pt-4">
                 <div className="container">
                     <table className="table">
                         <thead>
@@ -188,6 +217,7 @@ export default class DetailCrypto extends Component {
                             </tr>
                         </tbody>
                     </table>
+                    <h3>Evolution over the last 60 days</h3>
                     <canvas id="graph" width="200" height="200"></canvas>
                     <Link to={"/edit/" + this.state.id}>Edit</Link> | <Link to={"/delete/" + this.state.id}>Delete</Link>
                 </div>
