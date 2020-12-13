@@ -42,20 +42,25 @@ const Press = () => {
   }, []);
 
   const getPressByTag = async (tag) => {
-    let tagToSend = [];
+    let temp = ""
     for (let i in tag) {
-      tagToSend.push(tag[i].value);
+      if (i !== tag.length) {
+        temp = temp.concat((tag[i].value) + ",");
+      } else {
+        temp = temp.concat((tag[i].value));
+
+      }
     }
     await axios
       .get(
-        `${process.env.REACT_APP_API_URL}/articles?params=${tagToSend}`,
+        `${process.env.REACT_APP_API_URL}/articles?params=${temp}`,
         config
       )
       .then((res) => {
-        res.data.map((i) => {
-          return setData(i);
-        });
+        setData(res.data);
+
       });
+
   };
 
   let newTag = [];

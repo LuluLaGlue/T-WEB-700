@@ -83,7 +83,7 @@ class App extends Component {
   }
 
   setCrypto = (cryptos) => {
-    if (cryptos.list.followed) {
+    if (cryptos.followed) {
       this.setState({
         datas: cryptos.list,
         followed: cryptos.followed

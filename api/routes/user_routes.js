@@ -222,9 +222,7 @@ router.put("/profile", (req, res) => {
           user
             .save()
             .then((user) => {
-              let tmp = user;
-              tmp.username = undefined;
-              res.json(tmp);
+              res.json(user);
             })
             .catch((err) => {
               if (err.code === 11000) {
@@ -248,9 +246,7 @@ router.put("/profile", (req, res) => {
       user
         .save()
         .then((user) => {
-          let tmp = user;
-          tmp.username = undefined;
-          res.json(tmp);
+          res.json(user);
         })
         .catch((err) => console.log(err));
     }

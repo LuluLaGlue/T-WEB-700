@@ -10,7 +10,7 @@ class NavbarSite extends Component {
 
     this.state = {
       username: "",
-      isAdmin: false
+      isAdmin: ""
     };
     this.onLogoutClick = this.onLogoutClick.bind(this);
   }
@@ -28,7 +28,7 @@ class NavbarSite extends Component {
     if (user) {
       let userParser = JSON.parse(user);
       this.setState({
-        isAdmin: userParser.is_admin,
+        isAdmin: userParser.role,
         username: userParser.username
       })
     } else {
@@ -59,8 +59,11 @@ class NavbarSite extends Component {
                   this.props.auth.isAuthenticated === false ? "Login / Signup" : `Welcome ${this.state.username}`
                 }
                 id="collasible-nav-dropdown"
-              >
-                <NavDropdown.Item href="/admin">Admin</NavDropdown.Item>
+              >{
+                  this.state.isAdmin === "admin" ?
+                    <NavDropdown.Item href="/admin">Admin</NavDropdown.Item>
+                    : null
+                }
                 <NavDropdown.Item href="/login">Login</NavDropdown.Item>
                 <NavDropdown.Item href="/register">Register</NavDropdown.Item>
                 <NavDropdown.Item onClick={this.onLogoutClick}>

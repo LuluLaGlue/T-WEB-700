@@ -219,9 +219,13 @@ const socket_manager = (io) => {
       else {
         let datas = await Crypto.findOne({
           id: message.id
-        }).then(cryptos => {let crypto_tmp = crypto
+        }).then(cryptos => {let crypto_tmp = cryptos
                             crypto_tmp.is_authorized=true
-                            crypto_tmp.update()})
+                            crypto_tmp.save()})
+                            datas = await Crypto.find({
+                              is_authorized: true
+                            })
+          .then(cryptos => cryptos)
         socket.emit('accept_authorized', {message: 'Accepted', list:datas, method:'SOCKET'})
       }
     })

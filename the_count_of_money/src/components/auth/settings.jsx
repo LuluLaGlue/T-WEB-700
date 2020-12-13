@@ -19,6 +19,8 @@ const Settings = (props) => {
   const [tag, setTag] = useState([])
   const [show, setShow] = useState(false);
   const [cryptosFollowed, setCryptosFollowed] = useState([])
+  const [cryptosElse, setCryptosElse] = useState([])
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -26,7 +28,7 @@ const Settings = (props) => {
 
   const config = {
     headers: {
-      token,
+      authorization: token,
     },
   };
   let interm = [];
@@ -35,6 +37,8 @@ const Settings = (props) => {
       await axios
         .get(`${process.env.REACT_APP_API_URL}/users/profile`, config)
         .then((res) => {
+          console.log('res', res)
+
           setUserInfo({
             username: res.data.username,
             email: res.data.email,
@@ -47,9 +51,16 @@ const Settings = (props) => {
       await axios
         .get(`${process.env.REACT_APP_API_URL}/cryptos`, config)
         .then((res) => {
-          let response = res.data.list.else
-          for (let i in response) {
-            interm.push(response[i].name)
+          let response1 = res.data.list.else
+          let response2 = res.data.list.followed
+
+          for (let i in response1) {
+            interm.push(response1[i].name)
+          }
+          setCryptosElse(interm)
+          interm = []
+          for (let i in response2) {
+            interm.push(response2[i].name)
           }
           setCryptosFollowed(interm)
         })
@@ -66,28 +77,32 @@ const Settings = (props) => {
     fetchTags()
   }, []);
 
-  const submit = async (e) => {
-    //e.preventDefault();
-
+  const submit = async () => {
+    let sendCoins
+    let tmp
+    for (let i in newCrypto) {
+      newCrypto = newCrypto[i].value
+    }
+    sendCoins = cryptosFollowed.concat(newCrypto)
     const userdata = {
-      config,
       username: userInfo.username,
       email: userInfo.email,
       password: userInfo.password,
-      cryptos: userInfo.cryptos,
+      cryptos: sendCoins,
       article: userInfo.article
     };
     console.log('userdata', userdata)
-    /*     await axios
-          .put(`${process.env.REACT_APP_API_URL}/users/profile`, userdata)
-          .then((res) => {
-            console.log("res put", res);
-          });
-        await axios
-          .post(`${process.env.REACT_APP_API_URL}/validrequests`, userdata.cryptos)
-          .then((res) => {
-            console.log('res post', res)
-          }) */
+    await axios
+      .put(`${process.env.REACT_APP_API_URL}/users/profile`, {
+        headers: {
+          'Content-Type': 'application/json',
+          "authorization": token,
+        },
+        body: JSON.stringify(userdata)
+      })
+      .then((res) => {
+        console.log("res put", res);
+      });
   };
   let newCrypto = []
   let newTag = []
@@ -102,7 +117,7 @@ const Settings = (props) => {
             <Card.Title id="profileTitle">My profile</Card.Title>
             <Card.Text>Surname : {userInfo.username}</Card.Text>
             <Card.Text>Email : {userInfo.email}</Card.Text>
-            <Card.Text>Coins displayed : {userInfo.cryptos}
+            <Card.Text>Coins displayed : {cryptosFollowed}
 
             </Card.Text>
             <Card.Text>Tags : {userInfo.article}</Card.Text>
@@ -158,7 +173,7 @@ const Settings = (props) => {
               <h5>Coins displayed :</h5>
               <div className="select">
                 <Select
-                  options={cryptosFollowed.map((dataMap) => {
+                  options={cryptosElse.map((dataMap) => {
                     return { value: dataMap, label: dataMap };
                   })}
                   isMulti
