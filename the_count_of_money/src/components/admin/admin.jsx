@@ -94,7 +94,6 @@ class Admin extends Component {
         else this.setState({ buttonDisabled: true })
     }
 
-
     handleChange = (event) => {
         console.log('event', event.target.value)
         this.setState({ buttonDisabled: true })
@@ -122,7 +121,6 @@ class Admin extends Component {
     addCrypto = (event) => {
         socket.emit("to_authorized", { id: this.state.input, token: localStorage.getItem("jwtToken") })
     }
-
     render() {
         let user = JSON.parse(localStorage.getItem("userInfo"))
         if (user.role !== "admin") {
@@ -131,14 +129,20 @@ class Admin extends Component {
             return (
                 <>
                     <div id="profileDiv" className="d-flex justify-content-center">
-
                         <Card className="p-3" border="info" style={{ width: "50rem" }}>
                             <Card.Body id="bodyCard">
-                                <Card.Title id="profileTitle">Manage the website's datas</Card.Title>
-
+                                <Card.Title id="profileTitle"><h2>Manage the website's datas</h2></Card.Title>
                                 <Card.Text>
-                                    <ul>Coins displayed on website:</ul>
-                                    {this.state.cryptos}
+                                    Crypto currencies displayed on website:
+                                    <ul>
+                                        {this.state.cryptos.map((i) => {
+                                            return (
+                                                <li className="list-group-item">{i}</li>
+                                            )
+                                        })
+                                        }
+                                    </ul>
+
                                 </Card.Text>
 
                                 {/* <Card.Text>Tags : {adminInfo.article}</Card.Text> */}

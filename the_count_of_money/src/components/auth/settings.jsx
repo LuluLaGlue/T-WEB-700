@@ -7,15 +7,12 @@ import Select from "react-select";
 
 
 const Settings = (props) => {
-  const [userInfo, setUserInfo] = useState(
-    {
-      username: "",
-      email: "",
-      password: "",
-      article: "",
-      cryptos: [],
-    })
 
+  const [username, setUsername] = useState()
+  const [email, setEmail] = useState()
+  const [password, setPassword] = useState()
+  const [article, setArticle] = useState()
+  const [cryptos, setCryptos] = useState([])
   const [tag, setTag] = useState([])
   const [show, setShow] = useState(false);
   const [cryptosFollowed, setCryptosFollowed] = useState([])
@@ -38,14 +35,12 @@ const Settings = (props) => {
         .get(`${process.env.REACT_APP_API_URL}/users/profile`, config)
         .then((res) => {
           console.log('res', res)
+          setUsername(res.data.username)
+          setEmail(res.data.email)
+          setPassword(res.data.password)
+          setArticle(res.data.article)
+          setCryptos(res.data.crypto)
 
-          setUserInfo({
-            username: res.data.username,
-            email: res.data.email,
-            password: res.data.password,
-            article: res.data.article,
-            cryptos: res.data.crypto,
-          })
         })
     const fetchCryptos = async () => {
       await axios
@@ -79,17 +74,20 @@ const Settings = (props) => {
 
   const submit = async () => {
     let sendCoins
-    let tmp
+    let tmp = []
     for (let i in newCrypto) {
-      newCrypto = newCrypto[i].value
+      tmp.push(newCrypto[i].value)
+      console.log('tmp', tmp)
     }
-    sendCoins = cryptosFollowed.concat(newCrypto)
+    sendCoins = cryptosFollowed.concat(tmp)
+    console.log('sendCoins', sendCoins)
+
     const userdata = {
-      username: userInfo.username,
-      email: userInfo.email,
-      password: userInfo.password,
+      username: username,
+      email: email,
+      password: password,
       cryptos: sendCoins,
-      article: userInfo.article
+      article: article
     };
     console.log('userdata', userdata)
     await axios
@@ -115,12 +113,12 @@ const Settings = (props) => {
 
           <Card.Body id="bodyCard">
             <Card.Title id="profileTitle">My profile</Card.Title>
-            <Card.Text>Surname : {userInfo.username}</Card.Text>
-            <Card.Text>Email : {userInfo.email}</Card.Text>
+            <Card.Text>Surname : {username}</Card.Text>
+            <Card.Text>Email : {email}</Card.Text>
             <Card.Text>Coins displayed : {cryptosFollowed}
 
             </Card.Text>
-            <Card.Text>Tags : {userInfo.article}</Card.Text>
+            <Card.Text>Tags : {article}</Card.Text>
           </Card.Body>
           <Button variant="primary" onClick={handleShow}>
             Update my profile
@@ -148,19 +146,19 @@ const Settings = (props) => {
               <input
                 type="text"
                 className="form-control"
-                placeholder={userInfo.username}
+                placeholder={username}
                 aria-label="Username"
                 aria-describedby="addon-wrapping"
-                onChange={(event) => setUserInfo({ username: event.target.value })}
+                onChange={(event) => setUsername(event.target.value)}
               ></input>
               <h5>Mail :</h5>
               <input
                 type="text"
                 className="form-control"
-                placeholder={userInfo.email}
+                placeholder={email}
                 aria-label="Mail"
                 aria-describedby="addon-wrapping"
-                onChange={(event) => setUserInfo({ email: event.target.value })}
+                onChange={(event) => setEmail(event.target.value)}
               ></input>
               <h5>Change my password :</h5>
               <input
@@ -168,7 +166,7 @@ const Settings = (props) => {
                 className="form-control"
                 aria-label="Password"
                 aria-describedby="addon-wrapping"
-                onChange={(event) => setUserInfo({ password: event.target.value })}
+                onChange={(event) => setPassword(event.target.value)}
               ></input>
               <h5>Coins displayed :</h5>
               <div className="select">

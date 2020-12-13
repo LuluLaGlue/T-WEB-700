@@ -20,11 +20,7 @@ class NavbarSite extends Component {
     this.props.socket.emit("connection", { token: 'undefined' })
   };
   componentDidMount() {
-    //let username;
-    //let isAdmin
-    //const { user } = this.props.auth;
     const user = localStorage.getItem("userInfo");
-    //console.log('user', user)
     if (user) {
       let userParser = JSON.parse(user);
       this.setState({
@@ -64,13 +60,19 @@ class NavbarSite extends Component {
                     <NavDropdown.Item href="/admin">Admin</NavDropdown.Item>
                     : null
                 }
-                <NavDropdown.Item href="/login">Login</NavDropdown.Item>
-                <NavDropdown.Item href="/register">Register</NavDropdown.Item>
-                <NavDropdown.Item onClick={this.onLogoutClick}>
-                  Logout
-                </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+                {
+                  this.state.username === "" ?
+                    <>
+                      <NavDropdown.Item href="/login">Login</NavDropdown.Item>
+                      <NavDropdown.Item href="/register">Register</NavDropdown.Item>
+                    </>
+                    :
+                    <>
+                      <NavDropdown.Item onClick={this.onLogoutClick}>Logout</NavDropdown.Item>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+                    </>
+                }
                 {this.state.isAdmin === true ?
                   <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
                   : null
