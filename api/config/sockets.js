@@ -206,7 +206,27 @@ const socket_manager = (io) => {
       }
     })
 
-    socket.on('specific_crypto', async (message) => {
+    socket.on('to_authorized', async (message) => {
+      try {
+        verifiedJwt = jwt.verify(message.token, keys.secretOrKey);
+      } catch (e) {
+        console.log(e)
+        return e
+      }
+      if (verifiedJwt.role !== "admin") {
+        socket.emit("accept_authorized", { message: "unauthorized", error: "token not valid" })
+      }
+      else {
+        let datas = await Crypto.findOne({
+          id: message.id
+        }).then(cryptos => {let crypto_tmp = crypto
+                            crypto_tmp.is_authorized=true
+                            crypto_tmp.update()})
+        socket.emit('accept_authorized', {message: 'Accepted', list:datas, method:'SOCKET'})
+      }
+    })
+
+    socket.on('requested_crypto', async (message) => {
       let datas = await Crypto.findOne({
         id: message.id
       }).then(resp => resp)
