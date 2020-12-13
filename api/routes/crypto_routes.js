@@ -38,8 +38,19 @@ router.route('/cryptos')
       try {
         verifiedJwt = jwt.verify(token, keys.secretOrKey);
       } catch (e) {
-        console.log(e)
-        return res.json(e)
+        await Crypto.find({
+          is_authorized: true
+        }, null, {sort:{rank:1}}).then(crypto => {
+          return res.status(200).json({
+            message: "Cryptos",
+            list: crypto,
+            method: req.method
+          })
+        })
+        .catch(err => {
+          console.log(err);
+          return res.json(err)
+        })
       }
 
       let user_tmp;
