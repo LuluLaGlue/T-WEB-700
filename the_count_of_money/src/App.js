@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Select from 'react-select'
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import setAuthToken from "./utils/setAuthToken";
@@ -174,9 +173,9 @@ class App extends Component {
           <Route exact path="/login" component={Login} />
           <Route exact path="/press" component={Press} />
           <Route path="/detail/:id" render={(props) => <DetailCrypto socket={socket} {...props} />}/>
-          <Route exact path="/admin" component={Admin} />
         
           <Switch>
+            <PrivateRoute exact path="/admin" component={Admin} />
             <PrivateRoute exact path="/settings" component={Settings} />
             <PrivateRoute exact path="/add" component={AddCrypto} />
             <PrivateRoute path="/delete/:id" component={DeleteCrypto} />

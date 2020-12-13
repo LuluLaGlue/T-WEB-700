@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Card } from "react-bootstrap";
-import profil from "../../utils/profil.png";
+import { Card } from "react-bootstrap";
 //import "./settings.css";
 import axios from "axios";
+import Select from "react-select";
 
 const Admin = (props) => {
     const [adminInfo, setAdminInfo] = useState({
         cryptos: "",
+        tags: ""
     })
 
     const token = localStorage.getItem("jwtToken");
@@ -16,18 +17,31 @@ const Admin = (props) => {
             token,
         },
     };
+    let interm = []
     useEffect(() => {
-        const fetchdata = async () =>
+        const fetchcrypto = async () =>
             await axios
                 .get(`${process.env.REACT_APP_API_URL}/cryptos`, config)
                 .then((res) => {
                     console.log('res', res)
-                    setAdminInfo({
-                        cryptos: res.data.crypto,
-                    })
 
+                    let response = res.data.list.else
+                    for (let i in response) {
+                        interm.push(response[i].name)
+                    }
+                    setAdminInfo({
+                        cryptos: interm,
+                    })
                 });
-        fetchdata();
+        /*         const fetchTags = async () => {
+                    await axios
+                        .get(`${process.env.REACT_APP_API_URL}/articles/list/categories`, config)
+                        .then((result) => {
+                            setAdminInfo({ tags: result });
+                        });
+                } */
+        fetchcrypto();
+        //fetchTags()
     }, []);
 
     const submit = async (e) => {
@@ -44,20 +58,33 @@ const Admin = (props) => {
                 console.log("res", res);
             });
     };
-
+    let newCrypto
     return (
         <>
             <div id="profileDiv" className="d-flex justify-content-center">
-                <Card className="p-3" border="info" style={{ width: "25rem" }}>
+                <Card className="p-3" border="info" style={{ width: "50rem" }}>
 
 
                     <Card.Body id="bodyCard">
                         <Card.Title id="profileTitle">Manage the website's datas</Card.Title>
-                        <Card.Text>Coins displayed : {adminInfo.cryptos}
-
+                        <Card.Text>
+                            <th>Coins displayed on website:</th>
+                            <tr>{adminInfo.cryptos}</tr>
                         </Card.Text>
-                        <Card.Text>Tags : {adminInfo.article}</Card.Text>
+
+                        {/* <Card.Text>Tags : {adminInfo.article}</Card.Text> */}
                     </Card.Body>
+                    <Select
+                        options={adminInfo.cryptos.map((dataMap) => {
+                            return { value: dataMap, label: dataMap };
+                        })}
+                        isMulti
+                        isClearable
+                        className="basic-multi-select"
+                        onChange={(e) => {
+                            newCrypto = e;
+                        }}
+                    />
                 </Card>
             </div>
         </>

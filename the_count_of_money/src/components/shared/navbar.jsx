@@ -24,7 +24,7 @@ class NavbarSite extends Component {
     //let isAdmin
     //const { user } = this.props.auth;
     const user = localStorage.getItem("userInfo");
-    console.log('user', user)
+    //console.log('user', user)
     if (user) {
       let userParser = JSON.parse(user);
       this.setState({
