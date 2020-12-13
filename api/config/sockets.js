@@ -107,6 +107,13 @@ const socket_manager = (io) => {
           user.save();
         }
       })
+      if (found){
+        socket.emit('added_crypto', {message: 'Already added', list:crypto_id, method:'SOCKET'})
+      }
+      else {
+        let datas = await crypto_update.sendAuthorizedCryptos(listClients[item].token).then(resp => resp).catch(e => {})
+        socket.emit('added_crypto', {message: 'Crypto added', list:datas.else, followed:datas.followed, crypto_id:message.crypto_id, method:'SOCKET'})
+      }
     })
 
     socket.on('remove_crypto', async (message) => { // User profil update
@@ -145,7 +152,7 @@ const socket_manager = (io) => {
 
     socket.on('ask_search', async (input) => { // For users or admin
       if (input.length>2){
-        let datas = await Crypto.find({$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]
+        let datas = await Crypto.find({$and:[{is_authorized:false},{$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]}]
         }).then(resp => resp)
         socket.emit('get_search', {message: 'Search', list:datas, method:'SOCKET'})
       }
@@ -177,9 +184,9 @@ const socket_manager = (io) => {
 
     socket.on('change_rate', async (message) => { // For users
       let i;
-      for (item in listTokens){
-        if (listTokens[item].id = socket.id){
-          listTokens[item]['rate'] = message.rate
+      for (item in listClients){
+        if (listClients[item].id = socket.id){
+          listClients[item]['rate'] = message.rate
           i = item;
           break;
         }
