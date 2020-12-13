@@ -3,6 +3,7 @@
   align-items: center;
   background-color: rgba(255, 255, 255, 0.9);
 }
+
 #profile {
   width: 50%;
 }
@@ -12,4 +13,7 @@
 
 #profileDiv {
   margin-top: 10%;
+}
+#modalHeaderFooter {
+  background-color: rgb(216, 232, 247);
 }

@@ -5,20 +5,44 @@ import { logoutUser } from "../../actions/authActions";
 import { Navbar, NavDropdown, Nav, Container } from "react-bootstrap";
 
 class NavbarSite extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      username: "",
+      isAdmin: false
+    };
+    this.onLogoutClick = this.onLogoutClick.bind(this);
+  }
   onLogoutClick = (e) => {
     e.preventDefault();
     this.props.logoutUser();
-    this.props.socket.emit("connection",{token:'undefined'})
+    this.props.socket.emit("connection", { token: 'undefined' })
   };
+  componentDidMount() {
+    //let username;
+    //let isAdmin
+    //const { user } = this.props.auth;
+    const user = localStorage.getItem("userInfo");
+    console.log('user', user)
+    if (user) {
+      let userParser = JSON.parse(user);
+      this.setState({
+        isAdmin: userParser.is_admin,
+        username: userParser.username
+      })
+    } else {
+      this.setState({
+        isAdmin: false,
+        username: ""
+      })
+
+    }
+  }
 
   render() {
-    //const { user } = this.props.auth;
-    const user = JSON.parse(localStorage.getItem("userInfo"));
-    console.log("user", user);
 
-    /* let parserr = JSON.parse(user);
-    console.log("parserr", parserr);
-    const id = parserr.id; */
+    console.log('this.state.isAdmin', this.state.isAdmin)
     return (
       <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
         <Container>
@@ -32,10 +56,11 @@ class NavbarSite extends Component {
             <Nav>
               <NavDropdown
                 title={
-                  this.props.auth.isAuthenticated === false || user === null ? "" : `Welcome, ${user.username}`
+                  this.props.auth.isAuthenticated === false ? "Login / Signup" : `Welcome ${this.state.username}`
                 }
                 id="collasible-nav-dropdown"
               >
+                <NavDropdown.Item href="/admin">Admin</NavDropdown.Item>
                 <NavDropdown.Item href="/login">Login</NavDropdown.Item>
                 <NavDropdown.Item href="/register">Register</NavDropdown.Item>
                 <NavDropdown.Item onClick={this.onLogoutClick}>
@@ -43,6 +68,10 @@ class NavbarSite extends Component {
                 </NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+                {this.state.isAdmin === true ?
+                  <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+                  : null
+                }
               </NavDropdown>
             </Nav>
           </Navbar.Collapse>

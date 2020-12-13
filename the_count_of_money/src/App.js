@@ -23,6 +23,7 @@ import Press from "./components/Press/Press";
 import NavbarSite from "./components/shared/navbar";
 import "./App.css";
 import io from "socket.io-client";
+import Admin from "./components/admin/admin";
 
 let socket;
 
@@ -83,8 +84,7 @@ class App extends Component {
   }
 
   setCrypto = (cryptos) => {
-    console.log(cryptos)
-    if (cryptos.followed) {
+    if (cryptos.list.followed) {
       this.setState({
         datas: cryptos.list,
         followed: cryptos.followed
@@ -174,6 +174,8 @@ class App extends Component {
           <Route exact path="/login" component={Login} />
           <Route exact path="/press" component={Press} />
           <Route path="/detail/:id" render={(props) => <DetailCrypto socket={socket} {...props} />}/>
+          <Route exact path="/admin" component={Admin} />
+        
           <Switch>
             <PrivateRoute exact path="/settings" component={Settings} />
             <PrivateRoute exact path="/add" component={AddCrypto} />
