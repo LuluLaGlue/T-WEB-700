@@ -124,7 +124,7 @@ export default class DetailCrypto extends Component {
         }
 
         return (
-            <div className="text-light border-top pt-4">
+            <div className="text-light pt-4">
                 <div className="container">
                     <table className="table">
                         <thead>
@@ -217,9 +217,8 @@ export default class DetailCrypto extends Component {
                             </tr>
                         </tbody>
                     </table>
-                    <h3>Evolution over the last 60 days</h3>
+                    <h3 className="text-center pt-3">Evolution over the last 60 days</h3>
                     <canvas id="graph" width="200" height="200"></canvas>
-                    <Link to={"/edit/" + this.state.id}>Edit</Link> | <Link to={"/delete/" + this.state.id}>Delete</Link>
                 </div>
             </div>
         )
