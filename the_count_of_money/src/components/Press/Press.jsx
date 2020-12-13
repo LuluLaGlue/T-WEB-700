@@ -11,13 +11,11 @@ const Press = () => {
 
   let final_token;
   const token = localStorage.getItem("jwtToken");
-  console.log("token", token);
   if (token === null) {
     final_token = "";
   } else {
-    final_token = token.split(" ")[1];
+    final_token = token;
   }
-  console.log("final_token", final_token);
   const config = {
     headers: {
       authorization: final_token,
@@ -26,7 +24,7 @@ const Press = () => {
   useEffect(() => {
     const fetchdata = async () =>
       await axios
-        .get(`${process.env.REACT_APP_API_URL}/articles?params=`, config)
+        .get(`${process.env.REACT_APP_API_URL}/articles`, config)
         .then((res) => {
           setData(res.data);
         });

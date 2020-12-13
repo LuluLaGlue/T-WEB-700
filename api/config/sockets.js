@@ -13,34 +13,76 @@ var set_socket;
 
 const socket_manager = (io) => {
 
-  io.on('connection', (socket) => {
+  io.on('connection', async (socket) => {
 
-    listClients.push(socket)
-    listTokens.push({socket: socket.id, token:undefined, rate:'eur'})
+    listClients.push({socket: socket, token:undefined, rates:'eur'})
 
-    console.log(listTokens)
+    await socket.on('connection', async (message) => { // On window refresh
+      let token;
+      if (message.token === 'undefined' ) token = undefined
+      else token = message.token
 
-    socket.on('connection', async (message) => { // On window refresh
-      let token = undefined;
-      if (message.token) token = message.token
-      let socket_true = false
-      for (item in listTokens){
-        if (listTokens[item].socket === socket.id){
-          if (token !== undefined) listTokens[item]['token'] = message.token;
+      let datas = await crypto_update.sendAuthorizedCryptos(token).then(resp => resp).catch(e => {})
+      if (datas.name) datas = await crypto_update.sendAuthorizedCryptos(undefined).then(resp => resp).catch(e => {})
+      let list = []
+      if (datas.followed) {
+        socket.emit('send_cryptos', {message: 'Cryptos', list:datas.else, followed: datas.followed, method:'SOCKET'})
+      }
+      else socket.emit('send_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
+
+      for (item in listClients){
+        if (listClients[item].socket.id === socket.id){
+          listClients[item]['token'] = token
         }
       }
-      let datas = await crypto_update.sendAuthorizedCryptos(token).then(resp => resp)
-      socket.emit('send_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
+
+      /*let interval = setInterval( async (arg) => {
+        let token;
+        if (arg.temp.token === 'undefined' ) token = undefined
+        else token = arg.temp.token
+        let datas = await crypto_update.sendAuthorizedCryptos(arg.temp.token).then(resp => resp).catch(e => {})
+        if (datas.name) datas = await crypto_update.sendAuthorizedCryptos(undefined).then(resp => resp).catch(e => {})
+        let list = []
+        if (datas.followed) {
+          socket.emit('send_cryptos', {message: 'Cryptos', list:datas.else, followed: datas.followed, method:'SOCKET'})
+        }
+        else socket.emit('send_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
+
+        console.log('Cryptos update sent to sockets')
+      }, 15000, ({socket:socket, temp:temp_message}))
+      */
+
+      /*let token = undefined;
+      let rates = 'eur';
+
+      if (message.token === 'undefined') token = undefined;
+      else if (message.token !== undefined) token = message.token;
+
+      if (message.rates !== undefined && message.rates !== null) rates = message.rates;
+      else rates = 'eur'
+
+      let newSocket = {socket:socket, token: token, rates: rates}
+      if (listTokens.length>0){
+        for(item in listTokens){
+          if(listTokens[item].socket === socket.id){
+            listTokens.splice(item,1)
+            break;
+          }
+        }
+      }
+      listTokens.push(newSocket)
+      setInterval
+      let datas = await crypto_update.sendAuthorizedCryptos(token).then(resp => resp).catch(e =>{})
+      if (datas.followed) {
+        socket.emit('send_cryptos', {message: 'Cryptos', list:datas.else, followed: datas.followed, method:'SOCKET'})
+      }
+      else socket.emit('send_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})*/
     })
 
     socket.on('disconnect', () => {
       console.log('Client disconnected ' + socket.id)
       var i = listClients.indexOf(socket)
-      for (item in listTokens){
-        if (listTokens[item].socket === socket.id)
-          delete listTokens[item]
-      }
-      delete listClients[i];
+      listClients.splice(i,1);
 
     });
 
@@ -109,6 +151,15 @@ const socket_manager = (io) => {
       }
     })
 
+    socket.on('ask_authorized', async (input) => { // For users or admin
+      if (input.length>2){
+        let datas = await Crypto.find({$and:[{is_authorized:true},{$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]}]
+        }).then(resp => resp)
+        socket.emit('get_search', {message: 'Search', list:datas, method:'SOCKET'})
+      }
+    })
+
+
     socket.on('request_period', async (message) => { // For users
       try {
         verifiedJwt = jwt.verify(message.token, keys.secretOrKey);
@@ -161,28 +212,16 @@ const socket_manager = (io) => {
 
   setInterval( async () => {
     await crypto_update.refreshCryptoValues();
-    for (item in listTokens){
-      for (key in listClients){
-        if (listClients[key].connected === false){
-          delete listClients[key]
-        }
-        else if (listTokens[item] && listClients[key].id === listTokens[item].socket){
-          let datas = await crypto_update.sendAuthorizedCryptos(listTokens[item].token).then(resp => resp)
-          if (datas.name) datas = await crypto_update.sendAuthorizedCryptos(undefined).then(resp => resp)
-
-          let list = []
-          console.log(listTokens[0].rate)
-          if (listTokens[item].rate === 'usd'){
-            for (item in datas){
-                list.push(toUsdRate(datas[item]))
-              }
-              listClients[key].emit('refresh_cryptos', {message: 'Cryptos', list:list, method:'SOCKET'})
-          }
-          else listClients[key].emit('refresh_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
-        }
+    for (item in listClients){
+      let socket = listClients[item].socket
+      let datas = await crypto_update.sendAuthorizedCryptos(listClients[item].token).then(resp => resp).catch(e => {})
+      if (datas.name) datas = await crypto_update.sendAuthorizedCryptos(undefined).then(resp => resp).catch(e => {})
+      let list = []
+      if (datas.followed) {
+        socket.emit('send_cryptos', {message: 'Cryptos', list:datas.else, followed: datas.followed, method:'SOCKET'})
       }
+      else socket.emit('send_cryptos', {message: 'Cryptos', list:datas, method:'SOCKET'})
     }
-
     console.log('Cryptos update sent to sockets')
   }, 15000)
 }
