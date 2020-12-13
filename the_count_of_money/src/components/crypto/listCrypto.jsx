@@ -7,6 +7,9 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { useEffect } from "react";
+import AsyncSelect from "react-select/async";
+import { Button } from "react-bootstrap";
+
 
 function Crypto_row(props) {
   // Props representant une ligne de la liste des cryptos
@@ -87,7 +90,7 @@ function Crypto_row(props) {
       <td className="align-middle font-weight-bold">{props.crypto.rank}</td>
       <th className="align-middle py-4 " scope="row">
         <Link
-          to={"/detail/" + props.crypto.id} crypto = {props.crypto}
+          to={"/detail/" + props.crypto.id} crypto={props.crypto}
           className="text-light text-decoration-none"
         >
           <img className="mr-1" id="crypto-image" src={props.crypto.logo}></img>
@@ -102,8 +105,8 @@ function Crypto_row(props) {
           <b>
             €
             {new Intl.NumberFormat().format(
-              props.crypto.actual_price.toFixed(4)
-            )}
+            props.crypto.actual_price.toFixed(4)
+          )}
           </b>
         </span>
       </td>
@@ -169,6 +172,8 @@ export default class CryptoList extends Component {
     this.state = {
       cryptos: [],
       followed: [],
+      socket: props.socket,
+      inputValue: ''
     };
     this.method = this.method.bind(this);
   }
@@ -200,6 +205,18 @@ export default class CryptoList extends Component {
       return <Crypto_row crypto={currentCrypto} key={i} />;
     });
   }
+  setInput = (cryptos) => {
+    this.setState({ inputValue: cryptos.list })
+  }
+
+  handleInputChange = (newValue) => {
+    this.props.socket.emit("ask_search", newValue)
+    this.props.socket.on("get_search", this.setInput)
+    const inputValue = newValue.replace(/\W/g, '');
+    return inputValue;
+  };
+
+
 
   favList() {
     return this.state.followed.map(function (currentCrypto, i) {
@@ -223,11 +240,11 @@ export default class CryptoList extends Component {
       <Tooltip {...props}>
         Market Cap = Current Price x Circulating Supply
       </Tooltip>
-    );
+    )
 
     return (
-      <div className="justify-content-md-center border-top">
-        <div className="px-5 pb-5 pt-4 bg-dark text-light">
+      <div className="justify-content-md-center">
+        <div className="px-5 pb-5 pt-4 text-light">
           <table className="table">
             <thead>
               <tr className="text-light">
