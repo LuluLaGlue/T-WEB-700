@@ -227,7 +227,7 @@ export default class CryptoList extends Component {
 
     return (
       <div className="justify-content-md-center border-top">
-        <div className="px-5 pb-5 pt-4 bg-dark text-light">
+        <div className="px-5 pb-5 pt-4 text-light">
           <table className="table">
             <thead>
               <tr className="text-light">

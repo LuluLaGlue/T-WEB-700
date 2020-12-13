@@ -124,7 +124,7 @@ export default class DetailCrypto extends Component {
         }
 
         return (
-            <div className="bg-dark text-light border-top pt-4">
+            <div className="text-light border-top pt-4">
                 <div className="container">
                     <table className="table">
                         <thead>

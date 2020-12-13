@@ -4,6 +4,10 @@
   --secondary: #432C85;
 }
 
+#root {
+  background-color: #212325;
+}
+
 .App {
   text-align: center;
 }
