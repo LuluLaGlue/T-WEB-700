@@ -5,17 +5,18 @@ import "./settings.css";
 import axios from "axios";
 
 const Settings = (props) => {
-  const [username, setUsername] = useState("Sandrine");
-  const [email, setEmail] = useState("dasilva.sandrine31@gmail.com");
-  const [password, setPassword] = useState("azerty");
-  const [article, setArticle] = useState("");
-
+  const [userInfo, setUserInfo] = useState({
+    username: "",
+    email: "",
+    password: "",
+    article: "",
+    cryptos: "",
+  })
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const token = localStorage.getItem("jwtToken");
-  console.log("token profil", token);
 
   const config = {
     headers: {
@@ -27,9 +28,15 @@ const Settings = (props) => {
       await axios
         .get(`${process.env.REACT_APP_API_URL}/users/profile`, config)
         .then((res) => {
-          console.log("res", res);
-          setUsername(res.data.username);
-          setEmail(res.data.email);
+          setUserInfo({
+            username: res.data.username,
+            email: res.data.email,
+            password: res.data.password,
+            article: res.data.article,
+            cryptos: res.data.crypto,
+          })
+          /*           setUsername(res.data.username);
+                    setEmail(res.data.email); */
           //articles ??
         });
     fetchdata();
@@ -40,16 +47,20 @@ const Settings = (props) => {
 
     const userdata = {
       config,
-      username: username,
-      email: email,
-      password: password,
+      username: userInfo.username,
+      email: userInfo.email,
+      password: userInfo.password,
+      cryptos: userInfo.cryptos,
+      article: userInfo.article
     };
+    console.log('userdata', userdata)
     await axios
       .put(`${process.env.REACT_APP_API_URL}/users/profile`, userdata)
       .then((res) => {
         console.log("res", res);
-        setUsername(res.data.username);
-        setEmail(res.data.email);
+
+        /* setUsername(res.data.username);
+        setEmail(res.data.email); */
       });
   };
 
@@ -59,12 +70,12 @@ const Settings = (props) => {
         <Card className="p-3" border="info" style={{ width: "25rem" }}>
           <Card.Img id="profile" variant="top" src={profil} />
 
-          <Card.Body>
+          <Card.Body id="bodyCard">
             <Card.Title id="profileTitle">My profile</Card.Title>
-            <Card.Text>Surname : {username}</Card.Text>
-            <Card.Text>Email : {email}</Card.Text>
-            <Card.Text>Coins displayed : </Card.Text>
-            <Card.Text>Tags : {article}</Card.Text>
+            <Card.Text>Surname : {userInfo.username}</Card.Text>
+            <Card.Text>Email : {userInfo.email}</Card.Text>
+            <Card.Text>Coins displayed : {userInfo.cryptos}</Card.Text>
+            <Card.Text>Tags : {userInfo.article}</Card.Text>
           </Card.Body>
           <Button variant="primary" onClick={handleShow}>
             Update my profile
@@ -81,40 +92,62 @@ const Settings = (props) => {
           onHide={handleClose}
           show={show}
         >
-          <Modal.Header closeButton>
+          <Modal.Header id="modalHeaderFooter" closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
               Update my profile
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body>
-            <h5>Username :</h5>
-            <input
-              type="text"
-              className="form-control"
-              placeholder={username}
-              aria-label="Username"
-              aria-describedby="addon-wrapping"
-            ></input>
-            <h5>Mail :</h5>
-            <input
-              type="text"
-              className="form-control"
-              placeholder={email}
-              aria-label="Mail"
-              aria-describedby="addon-wrapping"
-            ></input>
-            <h5>Change my password :</h5>
-            <input
-              type="password"
-              className="form-control"
-              placeholder={password}
-              aria-label="Password"
-              aria-describedby="addon-wrapping"
-            ></input>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={submit}>Validate</Button>
-          </Modal.Footer>
+          <form>
+            <Modal.Body>
+              <h5>Username :</h5>
+              <input
+                type="text"
+                className="form-control"
+                placeholder={userInfo.username}
+                aria-label="Username"
+                aria-describedby="addon-wrapping"
+                onChange={(event) => setUserInfo({ username: event.target.value })}
+              ></input>
+              <h5>Mail :</h5>
+              <input
+                type="text"
+                className="form-control"
+                placeholder={userInfo.email}
+                aria-label="Mail"
+                aria-describedby="addon-wrapping"
+                onChange={(event) => setUserInfo({ email: event.target.value })}
+              ></input>
+              <h5>Change my password :</h5>
+              <input
+                type="password"
+                className="form-control"
+                aria-label="Password"
+                aria-describedby="addon-wrapping"
+                onChange={(event) => setUserInfo({ password: event.target.value })}
+              ></input>
+              <h5>Coins displayed :</h5>
+              <input
+                type="text"
+                className="form-control"
+                placeholder={userInfo.cryptos}
+                aria-label="Cryptos"
+                aria-describedby="addon-wrapping"
+                onChange={(event) => setUserInfo({ cryptos: event.target.value })}
+              ></input>
+              <h5>News displayed :</h5>
+              <input
+                type="text"
+                className="form-control"
+                placeholder={userInfo.article}
+                aria-label="Article"
+                aria-describedby="addon-wrapping"
+                onChange={(event) => setUserInfo({ article: event.target.value })}
+              ></input>
+            </Modal.Body>
+            <Modal.Footer id="modalHeaderFooter">
+              <Button onClick={submit}>Validate</Button>
+            </Modal.Footer>
+          </form>
         </Modal>
       </div>
     </>
