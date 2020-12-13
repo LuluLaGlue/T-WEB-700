@@ -68,7 +68,8 @@ export const setUserLoading = () => {
 // Log user out
 export const logoutUser = () => (dispatch) => {
   const tokenLocal = localStorage.getItem("jwtToken");
-  const token = tokenLocal.slice(7);
+  let token
+  if (tokenLocal !== null) token = tokenLocal.slice(7);
   const config = {
     headers: { authorization: token },
   };

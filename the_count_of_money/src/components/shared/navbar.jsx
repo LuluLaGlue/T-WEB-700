@@ -8,11 +8,12 @@ class NavbarSite extends Component {
   onLogoutClick = (e) => {
     e.preventDefault();
     this.props.logoutUser();
+    this.props.socket.emit("connection",{token:'undefined'})
   };
 
   render() {
     //const { user } = this.props.auth;
-    const user = localStorage.getItem("userInfo");
+    const user = JSON.parse(localStorage.getItem("userInfo"));
     console.log("user", user);
 
     /* let parserr = JSON.parse(user);
@@ -31,7 +32,7 @@ class NavbarSite extends Component {
             <Nav>
               <NavDropdown
                 title={
-                  this.props.auth.isAuthenticated === false ? "" : `Welcome, `
+                  this.props.auth.isAuthenticated === false || user === null ? "" : `Welcome, ${user.username}`
                 }
                 id="collasible-nav-dropdown"
               >

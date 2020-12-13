@@ -201,6 +201,12 @@ export default class CryptoList extends Component {
     });
   }
 
+  favList() {
+    return this.state.followed.map(function (currentCrypto, i) {
+      return <Crypto_row crypto={currentCrypto} key={i} />;
+    });
+  }
+
   render() {
     if (this.state.cryptos.list === undefined) {
       return null;
@@ -284,6 +290,26 @@ export default class CryptoList extends Component {
                   </span>
                 </th>
               </tr>
+            </thead>
+            {this.state.followed.length>0 ?
+              <React.Fragment>
+                <thead>
+                  <tr className="text-light">
+                    <th scope="col">Favorites cryptocurrencies</th>
+                  </tr>
+                </thead>
+                <tbody>{this.favList()}</tbody>
+              </React.Fragment>
+              :
+              null
+            }
+            <thead>
+            {this.state.followed.length>0 ?
+                <tr className="text-light">
+                  <th scope="col">Others cryptocurrencies</th>
+                </tr>
+                :null
+              }
             </thead>
             <tbody>{this.cryptoList()}</tbody>
           </table>

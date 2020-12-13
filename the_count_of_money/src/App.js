@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Select from 'react-select'
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import setAuthToken from "./utils/setAuthToken";
@@ -56,28 +57,74 @@ class App extends Component {
       endpoint: process.env.REACT_APP_ENDPOINT,
       datas: [],
       followed: [],
+      searchedList: [],
+      selectedValue: '',
+      input: '',
+      buttonDisabled: true,
     };
     socket = io(this.state.endpoint);
+    this.method = this.method.bind(this);
+    this.handleChange = this.handleChange.bind(this)
   }
+  method(e) {
+    e.preventDefault();
+  }
+
+  handleChange = (event) => {
+    this.setState({buttonDisabled:true})
+    this.setState({input:event.target.value})
+    if (event.target.value.length>2){
+      socket.emit("ask_authorized", event.target.value)
+    }
+  }
+
+  addCrypto = (event) => {
+    socket.emit("add_crypto", {crypto_id:this.state.input, token:localStorage.getItem("jwtToken")})
+  }
+
   setCrypto = (cryptos) => {
-    console.log(cryptos);
-    if (cryptos.list.followed) {
+    console.log(cryptos)
+    if (cryptos.followed) {
       this.setState({
-        datas: cryptos.list.else,
-        followed: cryptos.list.followed,
+        datas: cryptos.list,
+        followed: cryptos.followed
       });
     } else {
-      this.setState({ datas: cryptos.list });
+      this.setState({ datas: cryptos.list, followed: [] });
     }
   };
 
+  setSearched = (cryptos) => {
+    this.setState({ searchedList: cryptos.list})
+    if (cryptos.list.length > 0 && this.state.input.length > 2){
+      for (let i=0;i<cryptos.list.length; i++){
+        if(this.state.input === cryptos.list[i].id){
+          this.setState({buttonDisabled:false})
+          break;
+        }
+        else this.setState({buttonDisabled:true})
+      }
+    }
+    else this.setState({buttonDisabled:true})
+  }
+
   componentDidMount() {
     let state_current = this;
-    socket.emit("connection", {
-      token: localStorage.getItem("jwtToken"),
-    });
+    if (localStorage.getItem("jwtToken") !== null){
+      socket.emit("connection", {
+        token: localStorage.getItem("jwtToken"),
+        rates: 'eur'
+      });
+    }
+    else {
+      socket.emit("connection", {
+        token: 'undefined',
+        rates: 'eur'
+      });
+    }
     socket.on("send_cryptos", this.setCrypto);
     socket.on("refresh_cryptos", this.setCrypto);
+    socket.on("get_search", this.setSearched)
   }
 
   componentDidUpdate() {}
@@ -85,6 +132,7 @@ class App extends Component {
   componentWillUnmount() {
     socket.off("connection");
     socket.off("send_cryptos");
+    socket.off("refresh_cryptos");
   }
   /* When Done gets clicked, this function is called and mark_done event gets emitted which gets listened on the backend explained later on*/
   markDone = (id) => {
@@ -96,7 +144,20 @@ class App extends Component {
     return (
       <Provider store={store}>
         <Router>
-          <NavbarSite />
+          <NavbarSite socket={socket}/>
+          { window.location.pathname === '/' && localStorage.getItem("jwtToken") !== null ?
+            <React.Fragment>
+              <input list="dlist" name="cryptos" onChange={this.handleChange}/><button onClick={this.addCrypto} disabled={this.state.buttonDisabled}>Add</button>
+              <datalist id="dlist">
+                {this.state.searchedList.map((currentCrypto) => {
+                  return (
+                     <option value={currentCrypto.id} key={currentCrypto.id}>{currentCrypto.symbol}</option>
+                  )})
+                }
+              </datalist>
+            </React.Fragment>
+            : null
+            }
           <Route
             exact
             path="/"
