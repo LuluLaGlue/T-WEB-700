@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Chart from "chart.js";
 import { useEffect } from "react";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 export default class DetailCrypto extends Component {
@@ -97,11 +97,97 @@ export default class DetailCrypto extends Component {
         return (
             <div className="bg-dark text-light">
                 <div className="container">
-                    <h3 align="center">Details for {this.state.name}</h3>
-                    <h5>Price: {this.state.actual_price}</h5>
-                    <h5>Lowest 24h: {this.state.lowest_price_day}</h5>
-                    <h5>Highest 24h: {this.state.highest_price_day}</h5>
-                    <h5>Marketcap: {this.state.market_cap}</h5>
+                    <table className="table">
+                        <thead>
+                            <tr className="text-light">
+                                <th scope="col">#</th>
+                                <th scope="col">Cryptocurrency</th>
+                                <th scope="col">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        Price
+                                    </span>
+                                </th>
+                                <th scope="col">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        low 24h
+                                    </span>
+                                </th>
+                                <th scope="col">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        high 24h
+                                    </span>
+                                </th>
+                                <th scope="col">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        24h
+                                    </span>
+                                </th>
+                                <th scope="col">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        <span>Market cap</span>
+                                    </span>
+                                </th>
+                                <th scope="col">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        <span>Supply</span>
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="border-bottom text-light">
+                                <td className="align-middle font-weight-bold">{this.state.rank}</td>
+                                <th className="align-middle py-4 " scope="row">
+                                    <Link to={"/detail/" + this.state.id} crypto={this.state} className="text-light text-decoration-none">
+                                        <img className="mr-1" id="crypto-image" src={this.state.logo}></img>
+                                        {this.state.name}{" "}
+                                        <span className="text-muted font-weight-normal">
+                                            {this.state.symbol}
+                                        </span>
+                                    </Link>
+                                </th>
+                                <td className="align-middle">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        <b>
+                                            €{new Intl.NumberFormat().format(this.state.actual_price.toFixed(4))}
+                                        </b>
+                                    </span>
+                                </td>
+                                <td className="align-middle">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        €{this.state.lowest_price_day.toFixed()}
+                                    </span>
+                                </td>
+                                <td className="align-middle">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        €{this.state.highest_price_day.toFixed()}
+                                    </span>
+                                </td>
+                                <td
+                                    className={this.state.price_change_24h > 0 ? "text-success align-middle" : "text-danger align-middle" }>
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        <span id="caret">
+                                            {this.state.price_change_24h > 0 ? "▲" : "▼"}
+                                        </span>
+                                        {this.state.price_change_24h.toFixed(2)}%
+                                    </span>
+                                </td>
+                                <td className="align-middle">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        €{new Intl.NumberFormat().format(this.state.market_cap.toFixed(0))}
+                                    </span>
+                                </td>
+                                <td className="align-middle">
+                                    <span className="d-flex justify-content-end align-items-center">
+                                        {new Intl.NumberFormat().format(
+                                            this.state.circulating_supply.toFixed(0)
+                                        )}{" "}
+                                        {this.state.symbol}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <canvas id="graph" width="200" height="200"></canvas>
                     <Link to={"/edit/" + this.state.id}>Edit</Link> | <Link to={"/delete/" + this.state.id}>Delete</Link>
                 </div>
