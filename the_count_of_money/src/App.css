@@ -59,3 +59,11 @@
 .ocrypto-card a {
   color: #f9f9f9!important;
 }
+
+.close{
+  color:red;
+}
+
+.add_crypto{
+  color:#EFEFEF;
+}

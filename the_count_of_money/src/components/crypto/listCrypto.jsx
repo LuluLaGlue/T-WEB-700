@@ -11,6 +11,166 @@ import AsyncSelect from "react-select/async";
 import { Button } from "react-bootstrap";
 
 
+function Followed_row(props) {
+  // Props representant une ligne de la liste des cryptos
+
+  const last_7d = props.crypto.periods.last_week.opening_prices;
+  const last_7d_purcent =
+    ((last_7d[last_7d.length - 1] - last_7d[0]) / last_7d[last_7d.length - 1]) *
+    100;
+
+  useEffect(() => {
+    const ctx = document.getElementById(props.crypto.rank);
+
+    // recuperation des donnees pour le graph
+    const data_list = props.crypto.periods.last_month.opening_prices;
+
+    // utiliser pour changer la couleur du graph selon l'evolution
+    const evolution_price = data_list[data_list.length - 1] - data_list[0];
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: Array.from(Array(data_list.length).keys()),
+        datasets: [
+          {
+            data: data_list,
+            pointRadius: 0,
+            fill: false,
+            lineTension: 0,
+            borderColor: evolution_price > 0 ? "#22922d" : "#dc3545",
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+        tooltips: {
+          enabled: false,
+        },
+        scales: {
+          xAxes: [
+            {
+              gridLines: {
+                drawBorder: false,
+                drawOnChartArea: false,
+                drawTicks: false,
+                color: "#dc3545",
+              },
+              ticks: {
+                display: false,
+              },
+            },
+          ],
+          yAxes: [
+            {
+              gridLines: {
+                drawBorder: false,
+                drawOnChartArea: false,
+                drawTicks: false,
+              },
+              ticks: {
+                callback: function (value, index, values) {
+                  return "$" + value;
+                },
+                display: false,
+              },
+            },
+          ],
+        },
+      },
+    });
+  });
+
+  return (
+    <tr className="border-bottom text-light">
+      <td className="align-middle font-weight-bold">{props.crypto.rank}</td>
+      <th className="align-middle py-4 " scope="row">
+        <Link
+          to={"/detail/" + props.crypto.id} crypto={props.crypto}
+          className="text-light text-decoration-none"
+        >
+          <img className="mr-1" id="crypto-image" src={props.crypto.logo}></img>
+          {props.crypto.name}{" "}
+          <span className="text-muted font-weight-normal">
+            {props.crypto.symbol}
+          </span>
+        </Link>
+      </th>
+      <td className="align-middle">
+        <span className="d-flex justify-content-end align-items-center">
+          <b>
+            €
+            {new Intl.NumberFormat().format(
+            props.crypto.actual_price.toFixed(4)
+          )}
+          </b>
+        </span>
+      </td>
+      <td className="align-middle">
+        <span className="d-flex justify-content-end align-items-center">
+          €{props.crypto.lowest_price_day.toFixed()}
+        </span>
+      </td>
+      <td className="align-middle">
+        <span className="d-flex justify-content-end align-items-center">
+          €{props.crypto.highest_price_day.toFixed()}
+        </span>
+      </td>
+      <td
+        className={
+          props.crypto.price_change_24h > 0
+            ? "text-success align-middle"
+            : "text-danger align-middle"
+        }
+      >
+        <span className="d-flex justify-content-end align-items-center">
+          <span id="caret">
+            {props.crypto.price_change_24h > 0 ? "▲" : "▼"}
+          </span>
+          {props.crypto.price_change_24h.toFixed(2)}%
+        </span>
+      </td>
+      <td
+        className={
+          last_7d_purcent > 0
+            ? "text-success align-middle"
+            : "text-danger align-middle"
+        }
+      >
+        <span className="d-flex justify-content-end align-items-center">
+          <span id="caret">{last_7d_purcent > 0 ? "▲" : "▼"}</span>
+          {last_7d_purcent.toFixed(2)}%
+        </span>
+      </td>
+      <td className="align-middle">
+        <span className="d-flex justify-content-end align-items-center">
+          €{new Intl.NumberFormat().format(props.crypto.market_cap.toFixed(0))}
+        </span>
+      </td>
+      <td className="align-middle">
+        <span className="d-flex justify-content-end align-items-center">
+          {new Intl.NumberFormat().format(
+            props.crypto.circulating_supply.toFixed(0)
+          )}{" "}
+          {props.crypto.symbol}
+        </span>
+      </td>
+      <td className="chart-container py-1">
+        <canvas id={props.crypto.rank} width="200" height="60"></canvas>
+      </td>
+      <td>
+        <button type="button" className="close" aria-label="Close" onClick={() => props.socket.emit("remove_crypto", {token:props.token, crypto_id:props.crypto.id})}>
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </td>
+    </tr>
+  );
+}
+
 function Crypto_row(props) {
   // Props representant une ligne de la liste des cryptos
 
@@ -218,9 +378,9 @@ export default class CryptoList extends Component {
 
 
 
-  favList() {
+  favList(socket, jwtToken) {
     return this.state.followed.map(function (currentCrypto, i) {
-      return <Crypto_row crypto={currentCrypto} key={i} />;
+      return <Followed_row socket={socket} token={jwtToken} crypto={currentCrypto} key={i} />;
     });
   }
 
@@ -315,7 +475,7 @@ export default class CryptoList extends Component {
                     <th scope="col">Favorites cryptocurrencies</th>
                   </tr>
                 </thead>
-                <tbody>{this.favList()}</tbody>
+                <tbody>{this.favList(this.state.socket, localStorage.getItem("jwtToken"))}</tbody>
               </React.Fragment>
               :
               null

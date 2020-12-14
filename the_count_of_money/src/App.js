@@ -58,13 +58,16 @@ class App extends Component {
       datas: [],
       followed: [],
       searchedList: [],
-      selectedValue: '',
+      requestedList: [],
       input: '',
+      request: '',
       buttonDisabled: true,
+      button2Disabled: true,
     };
     socket = io(this.state.endpoint);
     this.method = this.method.bind(this);
     this.handleChange = this.handleChange.bind(this)
+    this.handleRequest = this.handleRequest.bind(this)
   }
   method(e) {
     e.preventDefault();
@@ -78,8 +81,20 @@ class App extends Component {
     }
   }
 
+  handleRequest = (event) => {
+    this.setState({button2Disabled:true})
+    this.setState({request:event.target.value})
+    if (event.target.value.length>2){
+      socket.emit("ask_search", event.target.value)
+    }
+  }
+
   addCrypto = (event) => {
     socket.emit("add_crypto", {crypto_id:this.state.input, token:localStorage.getItem("jwtToken")})
+  }
+
+  requestCrypto = (event) => {
+    socket.emit("request_crypto", {crypto_id:this.state.request, token:localStorage.getItem("jwtToken")})
   }
 
   setCrypto = (cryptos) => {
@@ -92,6 +107,21 @@ class App extends Component {
       this.setState({ datas: cryptos.list, followed: [] });
     }
   };
+
+  setRequest = (cryptos) => {
+    this.setState({ requestedList: cryptos.list})
+    if (cryptos.list.length > 0 && this.state.request.length > 2){
+      console.log(this.state.requestedList, this.state.request)
+      for (let i=0;i<cryptos.list.length; i++){
+        if(this.state.request === cryptos.list[i].id){
+          this.setState({button2Disabled:false})
+          break;
+        }
+        else this.setState({button2Disabled:true})
+      }
+    }
+    else this.setState({button2Disabled:true})
+  }
 
   setSearched = (cryptos) => {
     this.setState({ searchedList: cryptos.list})
@@ -124,6 +154,7 @@ class App extends Component {
     socket.on("send_cryptos", this.setCrypto);
     socket.on("refresh_cryptos", this.setCrypto);
     socket.on("get_search", this.setSearched)
+    socket.on("get_request", this.setRequest)
   }
 
   componentDidUpdate() {}
@@ -146,6 +177,7 @@ class App extends Component {
           <NavbarSite socket={socket}/>
           { window.location.pathname === '/' && localStorage.getItem("jwtToken") !== null ?
             <React.Fragment>
+              <span className="add_crypto">Add cryptos to your favorites</span>
               <input list="dlist" name="cryptos" onChange={this.handleChange}/><button onClick={this.addCrypto} disabled={this.state.buttonDisabled}>Add</button>
               <datalist id="dlist">
                 {this.state.searchedList.map((currentCrypto) => {
@@ -154,6 +186,15 @@ class App extends Component {
                   )})
                 }
               </datalist>
+                  <span className="add_crypto">Ask the admin to authorize cryptos</span>
+                  <input list="rlist" name="cryptos" onChange={this.handleRequest}/><button onClick={this.requestCrypto} disabled={this.state.button2Disabled}>Add</button>
+                  <datalist id="rlist">
+                    {this.state.requestedList.map((currentCrypto) => {
+                      return (
+                         <option value={currentCrypto.id} key={currentCrypto.id}>{currentCrypto.symbol}</option>
+                      )})
+                    }
+                  </datalist>
             </React.Fragment>
             : null
             }
@@ -173,7 +214,7 @@ class App extends Component {
           <Route exact path="/login" component={Login} />
           <Route exact path="/press" component={Press} />
           <Route path="/detail/:id" render={(props) => <DetailCrypto socket={socket} {...props} />}/>
-        
+
           <Switch>
             <PrivateRoute exact path="/admin" component={Admin} />
             <PrivateRoute exact path="/settings" component={Settings} />

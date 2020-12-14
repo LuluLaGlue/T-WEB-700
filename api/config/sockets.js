@@ -127,7 +127,7 @@ const socket_manager = (io) => {
         _id: verifiedJwt.id
       }).then( user => {
         var i = user.cryptos.indexOf(message.crypto_id);
-        delete user.cryptos[i]
+        user.cryptos.splice(i, 1)
         user.save();
       })
     })
@@ -143,7 +143,7 @@ const socket_manager = (io) => {
       await Crypto.findOne({
         id: message.crypto_id
       }).then( crypto => {
-        if (crypto.is_authorized = false){
+        if (crypto.is_authorized === false){
           crypto.is_requested = true;
           crypto.save()
         }
@@ -154,7 +154,7 @@ const socket_manager = (io) => {
       if (input.length>2){
         let datas = await Crypto.find({$and:[{is_authorized:false},{$or:[{id: new RegExp('^'+input, 'i') }, {name: new RegExp('^'+input, 'i')}, {symbol: new RegExp('^'+input, 'i')}]}]
         }).then(resp => resp)
-        socket.emit('get_search', {message: 'Search', list:datas, method:'SOCKET'})
+        socket.emit('get_request', {message: 'Search', list:datas, method:'SOCKET'})
       }
     })
 

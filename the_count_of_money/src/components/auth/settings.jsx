@@ -11,7 +11,7 @@ const Settings = (props) => {
   const [username, setUsername] = useState()
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
-  const [article, setArticle] = useState()
+  const [articles, setArticle] = useState([])
   const [cryptos, setCryptos] = useState([])
   const [tag, setTag] = useState([])
   const [show, setShow] = useState(false);
@@ -38,8 +38,8 @@ const Settings = (props) => {
           setUsername(res.data.username)
           setEmail(res.data.email)
           setPassword(res.data.password)
-          setArticle(res.data.article)
-          setCryptos(res.data.crypto)
+          setArticle(res.data.articles)
+          setCryptos(res.data.cryptos)
 
         })
     const fetchCryptos = async () => {
@@ -47,15 +47,15 @@ const Settings = (props) => {
         .get(`${process.env.REACT_APP_API_URL}/cryptos`, config)
         .then((res) => {
           let response1 = res.data.list.else
-          let response2 = res.data.list.followed
+          let response2 = res.data.followed
 
           for (let i in response1) {
-            interm.push(response1[i].name)
+            interm.push(response1[i].id)
           }
           setCryptosElse(interm)
           interm = []
           for (let i in response2) {
-            interm.push(response2[i].name)
+            interm.push(response2[i].id)
           }
           setCryptosFollowed(interm)
         })
@@ -87,7 +87,7 @@ const Settings = (props) => {
       email: email,
       password: password,
       cryptos: sendCoins,
-      article: article
+      articles: articles
     };
     console.log('userdata', userdata)
     await axios
@@ -96,7 +96,11 @@ const Settings = (props) => {
           'Content-Type': 'application/json',
           "authorization": token,
         },
-        body: JSON.stringify(userdata)
+        username: username,
+        email: email,
+        password: password,
+        cryptos: sendCoins,
+        articles: articles
       })
       .then((res) => {
         console.log("res put", res);
@@ -115,10 +119,14 @@ const Settings = (props) => {
             <Card.Title id="profileTitle">My profile</Card.Title>
             <Card.Text>Surname : {username}</Card.Text>
             <Card.Text>Email : {email}</Card.Text>
-            <Card.Text>Coins displayed : {cryptosFollowed}
+            <Card.Text>Coins displayed : {cryptos.map((i) => {
+              return i + ', '
+            })}
 
             </Card.Text>
-            <Card.Text>Tags : {article}</Card.Text>
+            <Card.Text>Tags : {articles.map((i) => {
+              return i + ', '
+            })}</Card.Text>
           </Card.Body>
           <Button variant="primary" onClick={handleShow}>
             Update my profile

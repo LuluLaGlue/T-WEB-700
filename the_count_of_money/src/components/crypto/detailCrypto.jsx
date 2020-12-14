@@ -21,17 +21,14 @@ export default class DetailCrypto extends Component {
     }
 
     setCrypto = crypto => {
-        console.log(crypto)
         this.setState(crypto.list)
         this.createChart()
     }
 
     componentDidMount() {
-        if (this.props.socket) {
-
-            this.props.socket.emit('specific_crypto', { id: this.props.match.params.id })
-            this.props.socket.on('send_specific', this.setCrypto)
-
+        if (this.state.socket) {
+            this.state.socket.emit('requested_crypto', { id: this.props.match.params.id })
+            this.state.socket.on('send_specific', this.setCrypto)
         }
         /*  axios.get(
              `${process.env.REACT_APP_API_URL}/cryptos` + this.props.match.params.id
