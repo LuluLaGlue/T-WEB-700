@@ -206,7 +206,7 @@ const updateCryptoValues = async (crypto) => {
           );
         }
     }
-    crypto_tmp.update();
+    crypto_tmp.save();
   }
 };
 
