@@ -63,7 +63,7 @@ class Admin extends Component {
                             setAdminInfo({ tags: result });
                         });
                 } */
-        socket.on("get_search", this.setSearched)
+        socket.on("get_request", this.setSearched)
         socket.on("accept_authorized", this.setMessage)
         fetchcrypto();
         //fetchTags()
