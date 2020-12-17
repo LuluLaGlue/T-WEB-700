@@ -61,7 +61,7 @@ const crypto_update = require("./config/cryptos.js");
 const jwt = require("jsonwebtoken");
 
 app.use(crypto_route);
-crypto_update.refreshCryptoDB();
+//crypto_update.refreshCryptoDB();
 
 const sockets_loader = require("./config/sockets");
 sockets_loader.socket_manager(io);
